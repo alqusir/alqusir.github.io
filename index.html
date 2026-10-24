@@ -1033,7 +1033,7 @@ $("drawBtn").addEventListener("click",async function(){
 $("resetRaf").addEventListener("click",async function(){
   if(!rafConfirm){rafConfirm=true;renderRaffle();return}
   rafConfirm=false;
-  try{await rpc("admin_reset_raffle",{p_code:ADMIN_CODE})}catch(e){}
+  try{await rpc("admin_reset_raffle",{p_code:ADMIN_CODE})}catch(e){renderRaffle();$("rafInfo").textContent="تعذّر مسح النتائج: "+errText(e);return}
   $("drawnName").className="nm";$("drawnName").textContent="؟";await refreshAdmin();
 });
 Array.prototype.forEach.call(document.querySelectorAll(".tab[data-f]"),function(b){
