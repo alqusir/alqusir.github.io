@@ -367,13 +367,12 @@ canvas#fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-in
             <p class="note" id="countNote" hidden style="margin:-8px 0 16px"></p>
             <div class="field">
               <label for="contestant">الاسم الرباعي</label>
-              <input id="contestant" type="text" autocomplete="off" placeholder="مثال: محمد عبدالله سعد فهد">
-              <span class="note" style="margin:0;font-size:13px">اكتب أسماءك الأربعة، دون اسم العائلة.</span>
+              <input id="contestant" type="text" autocomplete="off" placeholder="مثال: محمد بن عبدالله بن سعد بن فهد">
+              <span class="note" style="margin:0;font-size:13px">هذا مثال فقط؛ يُقبل أي اسم رباعي، ولا يلزم ذكر «بن».</span>
             </div>
             <div class="field">
               <label for="contestantNo">رقم الجوال</label>
               <input id="contestantNo" type="text" inputmode="numeric" maxlength="15" autocomplete="off" placeholder="05xxxxxxxx" dir="ltr" style="text-align:right">
-              <span class="note" style="margin:0;font-size:13px">يُستخدم للتمييز بين الأسماء المتشابهة فقط، ولا يظهر لغير المنظّم.</span>
             </div>
             <p class="warn-box" id="startErr" hidden></p>
             <div id="startBox"><button class="btn btn-main" id="go" type="button" disabled>ابدأ المسابقة</button></div>
@@ -653,7 +652,7 @@ show(savedPg>0&&savedPg<=TOTAL?savedPg:7,true);
 var SCR=["sStart","sQ","sReview","sEnd"], LET=["أ","ب","ج","د"];
 var idx=0,picks=new Array(QUESTIONS.length).fill(-1),who="",dbOK=false,t0=0,timerH=null;
 function screen(id,noscroll){SCR.forEach(function(s){$(s).classList.toggle("on",s===id)});if(!noscroll)$("quizBox").scrollIntoView({behavior:REDUCE?"auto":"smooth",block:"nearest"})}
-var FACTS_HTML='<li><b>'+n2a(QUESTIONS.length)+'</b> سؤالاً، اختيار من متعدد</li><li>يُشترط ألا يقلّ عمر المشارك عن <b>٧ سنوات</b></li><li>لكل مشارك <b>محاولتان</b> فقط، وتُحتسب الأعلى درجة</li><li>القرعة لأصحاب الإجابات الكاملة</li><li>تُغلق المسابقة نهاية يوم <b>٣٠ جمادى الأولى ١٤٤٨ هـ</b></li>';
+var FACTS_HTML='<li><b>'+n2a(QUESTIONS.length)+'</b> سؤالاً، اختيار من متعدد</li><li>يُشترط ألا يقلّ عمر المشارك عن <b>٧ سنوات</b></li><li>لكل مشارك <b>محاولتان</b> فقط، وتُحتسب الأعلى درجة</li><li>القرعة لأصحاب الإجابات الكاملة</li><li>تُغلق المسابقة نهاية يوم <b><bdi dir="rtl">٣٠ / ٥ / ١٤٤٨ هـ</bdi></b></li>';
 $("facts").innerHTML=FACTS_HTML;$("facts2").innerHTML=FACTS_HTML;
 var digits="",attNo=1,usedAtt=0;
 var nm0=store("hijab-name");if(nm0)$("contestant").value=nm0;var dg0=store("hijab-digits");if(dg0)$("contestantNo").value=dg0;
@@ -1138,7 +1137,7 @@ function toLocalInput(iso){
 function prefillWin(){}
 function renderWinState(){
   var f=phase(),st=(ADM&&ADM.settings)||{};
-  var m={none:"لم تُفتح بعد. اضغط «افتح الآن» عند إرسال الرابط.",before:"",open:"مفتوحة الآن وتُغلق تلقائياً نهاية يوم ٣٠ جمادى الأولى ١٤٤٨ هـ ("+(st.deadline?fmtAt(st.deadline):"")+").",closed:st.force_closed?"أُغلقت يدوياً.":"مغلقة أمام المتسابقين.",loading:"",nodb:""};
+  var m={none:"لم تُفتح بعد. اضغط «افتح الآن» عند إرسال الرابط.",before:"",open:"مفتوحة الآن وتُغلق تلقائياً نهاية يوم ٣٠ / ٥ / ١٤٤٨ هـ ("+(st.deadline?fmtAt(st.deadline):"")+").",closed:st.force_closed?"أُغلقت يدوياً.":"مغلقة أمام المتسابقين.",loading:"",nodb:""};
   $("winState").textContent="الحالة: "+(m[f.p]||"");
   $("winStop").textContent=st.force_closed?"أعد الفتح":"أغلق الآن";
 }
