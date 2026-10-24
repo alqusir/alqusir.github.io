@@ -274,6 +274,11 @@ canvas#fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-in
 .gate-box{width:min(360px,100%);display:flex;flex-direction:column;gap:14px;padding:22px;border-radius:18px;background:var(--surface);color:var(--ink);border:1px solid var(--line);box-shadow:0 24px 60px rgba(0,0,0,.35)}
 .gate-box h3{margin:0;font-size:20px;font-weight:900}
 .gate-box input{min-height:48px;padding:0 14px;border-radius:12px;border:1.5px solid var(--line);background:transparent;color:var(--ink);font:inherit;font-size:18px;letter-spacing:.2em;text-align:center}
+.gate-box.info{position:relative;width:min(420px,100%);padding-top:40px}
+.x-btn{position:absolute;top:10px;left:10px;width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
+.x-btn:hover{border-color:var(--accent)}
+.to-top{position:fixed;bottom:20px;left:20px;z-index:80;width:48px;height:48px;border-radius:50%;border:0;background:var(--green);color:#fff;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 8px 22px rgba(0,0,0,.28)}
+.to-top[hidden]{display:none!important}
 #secretTap{cursor:default;-webkit-tap-highlight-color:transparent;user-select:none}
 </style>
 
@@ -362,13 +367,18 @@ canvas#fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-in
             <ul class="facts" id="facts"></ul>
             <p class="note" id="countNote" hidden style="margin:-8px 0 16px"></p>
             <div class="field">
-              <label for="contestant">الاسم الكامل للمتسابق</label>
-              <input id="contestant" type="text" autocomplete="off" placeholder="اكتب اسمك">
+              <label for="contestant">الاسم الرباعي</label>
+              <input id="contestant" type="text" autocomplete="off" placeholder="مثال: محمد عبدالله سعد القصيّر">
+            </div>
+            <div class="field">
+              <label for="contestantNo">رقم للتمييز بين الأسماء المتشابهة</label>
+              <input id="contestantNo" type="text" inputmode="numeric" maxlength="8" autocomplete="off" placeholder="آخر ٤ أرقام من جوالك" dir="ltr" style="text-align:right">
+              <span class="note" style="margin:0;font-size:13px">يُستخدم فقط عند تشابه الأسماء، ولا يظهر لغير المنظّم.</span>
             </div>
             <p class="warn-box" id="startErr" hidden></p>
             <div id="startBox"><button class="btn btn-main" id="go" type="button" disabled>ابدأ المسابقة</button></div>
             <div id="confirmBox" hidden>
-              <p class="note" style="margin:0 0 12px">عند التأكيد يبدأ العدّ التنازلي لمدة ٣٠ دقيقة، ولا يمكن إيقافه أو إعادة المحاولة. لكل شخص محاولة واحدة فقط.</p>
+              <p class="note" style="margin:0 0 12px" id="confirmTxt"></p>
               <div class="cta" style="justify-content:flex-start;margin-top:0">
                 <button class="btn btn-main" id="goConfirm" type="button">تأكيد وبدء الاختبار</button>
                 <button class="btn btn-line" id="goCancel" type="button">رجوع</button>
@@ -378,7 +388,7 @@ canvas#fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-in
 
           <div class="screen" id="sQ">
             <p class="live-left" id="liveLeft" hidden></p>
-            <div class="q-top"><div class="dots" id="dots"></div><div class="q-meta"><span class="timer" id="timer">٠٠:٠٠</span><span id="qcount"></span></div></div>
+            <div class="q-top"><div class="dots" id="dots"></div><div class="q-meta"><span id="qcount"></span></div></div>
             <h3 class="q-text" id="qtext"></h3>
             <div class="opts" id="opts" role="group" aria-label="الخيارات"></div>
             <p class="kbd-hint">اختصار: اضغط الأرقام ١ إلى ٤ على لوحة المفاتيح للاختيار، والأسهم للتنقل.</p>
@@ -423,14 +433,8 @@ canvas#fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-in
         <div class="win-card">
           <h3>موعد المسابقة</h3>
           <p class="note" id="winState" style="margin:0"></p>
-          <div class="win-fields">
-            <label for="winOpen">تفتح في<input type="datetime-local" id="winOpen"></label>
-            <label for="winClose">تُغلق في<input type="datetime-local" id="winClose"></label>
-          </div>
           <div class="cta">
-            <button class="btn btn-main" id="winSave" type="button">حفظ الموعد</button>
-            <button class="btn btn-line" id="winNow" type="button">افتح الآن</button>
-            <button class="btn btn-line" id="winWeek" type="button">افتح الآن لمدة أسبوع</button>
+            <button class="btn btn-main" id="winNow" type="button">افتح الآن</button>
             <button class="btn btn-line" id="winStop" type="button">أغلق الآن</button>
           </div>
           <p class="note" id="winMsg"></p>
@@ -456,11 +460,12 @@ canvas#fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-in
           <button class="tab" role="tab" data-f="out" aria-selected="false" type="button">خارج القرعة</button>
           <span class="tab-spacer"></span>
           <button class="tab" id="copyList" type="button">نسخ القائمة</button>
-          <button class="tab" id="exportBtn" type="button">تصدير نسخة (Excel)</button>
+          <button class="tab" id="exportBtn" type="button">تصدير Excel</button>
+          <button class="tab" id="exportPdf" type="button">تصدير PDF</button>
         </div>
         <div class="tbl-wrap">
           <table>
-            <thead><tr><th class="num">#</th><th>الاسم</th><th>وقت التسليم</th><th>المدة</th><th class="num">الدرجة</th><th>الحالة</th><th></th></tr></thead>
+            <thead><tr><th class="num">#</th><th>الاسم</th><th>الرقم</th><th>وقت التسليم</th><th class="num">الدرجة</th><th class="num">المحاولات</th><th>الحالة</th><th></th></tr></thead>
             <tbody id="rows"></tbody>
           </table>
           <div class="empty" id="rowsEmpty">لا توجد إجابات مسلّمة بعد.</div>
@@ -482,6 +487,15 @@ canvas#fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-in
 </main>
 
 <footer><div class="wrap"><span id="familyFoot">القصيّر</span> · <span id="secretTap">١٤٤٨ هـ</span></div></footer>
+<div class="gate" id="infoModal" hidden role="dialog" aria-modal="true" aria-labelledby="infoT">
+  <div class="gate-box info">
+    <button class="x-btn" id="infoX" type="button" aria-label="إغلاق"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <h3 id="infoT">معلومات المسابقة</h3>
+    <ul class="facts" id="facts2"></ul>
+    <div class="cta" style="margin:0;justify-content:flex-start"><button class="btn btn-main" id="infoOk" type="button">فهمت، ابدأ التصفح</button></div>
+  </div>
+</div>
+<button class="to-top" id="toTop" type="button" aria-label="العودة إلى أعلى الصفحة" hidden><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V6"/><path d="M6 11l6-6 6 6"/></svg></button>
 <div class="gate" id="gate" hidden role="dialog" aria-modal="true" aria-labelledby="gateT">
   <div class="gate-box">
     <h3 id="gateT">دخول المنظّم</h3>
@@ -639,27 +653,27 @@ show(savedPg>0&&savedPg<=TOTAL?savedPg:7,true);
 var SCR=["sStart","sQ","sReview","sEnd"], LET=["أ","ب","ج","د"];
 var idx=0,picks=new Array(QUESTIONS.length).fill(-1),who="",dbOK=false,t0=0,timerH=null;
 function screen(id,noscroll){SCR.forEach(function(s){$(s).classList.toggle("on",s===id)});if(!noscroll)$("quizBox").scrollIntoView({behavior:REDUCE?"auto":"smooth",block:"nearest"})}
-$("facts").innerHTML='<li><b>'+n2a(QUESTIONS.length)+'</b> سؤالاً</li><li>اختيار من متعدد</li><li>القرعة لأصحاب الإجابات الكاملة</li><li>مدة الاختبار <b>٣٠</b> دقيقة</li><li>محاولة واحدة فقط</li>';
-var nm0=store("hijab-name");if(nm0)$("contestant").value=nm0;
-function checkName(){$("go").disabled=$("contestant").value.trim().length<3||!canTake();if($("contestant").value.trim().length<3){$("confirmBox").hidden=true;$("startBox").hidden=false}}
-$("contestant").addEventListener("input",checkName);checkName();
-function fmtDur(s){s=Math.max(0,Math.round(s));return n2a(String(Math.floor(s/60)).padStart(2,"0"))+":"+n2a(String(s%60).padStart(2,"0"))}
-var DURATION=30*60,startedAtMs=0,deadlineMs=0,autoDone=false;
-function limitMs(){var c=closeAtMs();return IS_OWNER||c===null?deadlineMs:Math.min(deadlineMs,c)}
-function attemptActive(){return startedAtMs>0&&NOW()<limitMs()&&!autoDone}
-function timerTick(){
-  if(!startedAtMs)return;
-  var rem=(limitMs()-NOW())/1000,tm=$("timer");
-  tm.textContent=fmtDur(rem);tm.classList.toggle("warn",rem<=300);
-  if(rem<=0&&(!$("sQ").classList.contains("on")?$("sReview").classList.contains("on"):true))autoSubmit();
+var FACTS_HTML='<li><b>'+n2a(QUESTIONS.length)+'</b> سؤالاً، اختيار من متعدد</li><li>للمشاركين <b>فوق ٧ سنوات</b></li><li>لكل مشارك <b>محاولتان</b> فقط، وتُحتسب الأعلى درجة</li><li>القرعة لأصحاب الإجابات الكاملة</li><li>تُغلق المسابقة نهاية يوم <b>٣٠/٥/١٤٤٨ هـ</b></li>';
+$("facts").innerHTML=FACTS_HTML;$("facts2").innerHTML=FACTS_HTML;
+var digits="",attNo=1,usedAtt=0;
+var nm0=store("hijab-name");if(nm0)$("contestant").value=nm0;var dg0=store("hijab-digits");if(dg0)$("contestantNo").value=dg0;
+function normD(t){return String(t).replace(/[٠-٩]/g,function(d){return "٠١٢٣٤٥٦٧٨٩".indexOf(d)}).replace(/[۰-۹]/g,function(d){return "۰۱۲۳۴۵۶۷۸۹".indexOf(d)}).replace(/\D/g,"")}
+function nameOk(){return $("contestant").value.trim().split(/\s+/).filter(Boolean).length>=3}
+function digitsOk(){return normD($("contestantNo").value).length===4}
+function checkName(){
+  $("go").disabled=!(nameOk()&&digitsOk()&&canTake());
+  if(!(nameOk()&&digitsOk())){$("confirmBox").hidden=true;$("startBox").hidden=false}
 }
-function startTimer(){clearInterval(timerH);timerTick();timerH=setInterval(timerTick,1000)}
-function draftSave(){store("qs-draft",JSON.stringify({picks:picks,idx:idx,who:who,startedAt:startedAtMs}))}
+$("contestant").addEventListener("input",checkName);
+$("contestantNo").addEventListener("input",function(){var v=normD($("contestantNo").value).slice(0,4);if($("contestantNo").value!==v)$("contestantNo").value=v;checkName()});
+checkName();
+function fmtDur(s){s=Math.max(0,Math.round(s));return n2a(String(Math.floor(s/60)).padStart(2,"0"))+":"+n2a(String(s%60).padStart(2,"0"))}
+function draftSave(){store("qs-draft",JSON.stringify({picks:picks,idx:idx,who:who,digits:digits,att:attNo}))}
 function draftLoad(){try{return JSON.parse(store("qs-draft"))}catch(e){return null}}
 function beginQuiz(){
-  deadlineMs=startedAtMs+DURATION*1000;autoDone=false;
-  var d=draftLoad();if(d&&d.startedAt===startedAtMs&&d.picks&&d.picks.length===QUESTIONS.length){picks=d.picks;idx=Math.min(d.idx||0,QUESTIONS.length-1);if(d.who)who=d.who}
-  screen("sQ");render();startTimer();
+  var d=draftLoad();
+  if(d&&d.att===attNo&&d.who===who&&d.digits===digits&&d.picks&&d.picks.length===QUESTIONS.length){picks=d.picks;idx=Math.min(d.idx||0,QUESTIONS.length-1)}
+  screen("sQ");render();
 }
 
 function dots(){
@@ -683,6 +697,7 @@ function render(){
     b.addEventListener("click",function(){choose(i)});
     box.appendChild(b);
   });
+  draftSave();
   $("qPrev").disabled=idx===0;
   $("qNext").textContent=idx===QUESTIONS.length-1?"مراجعة الإجابات":"التالي";
   $("qNext").disabled=picks[idx]<0;
@@ -694,25 +709,28 @@ function choose(i){
   if(first)adv=setTimeout(function(){goNext()},REDUCE?0:420);
 }
 function goNext(){if(idx<QUESTIONS.length-1){idx++;render()}else showReview()}
-$("go").addEventListener("click",function(){$("startBox").hidden=true;$("confirmBox").hidden=false});
-$("goCancel").addEventListener("click",function(){$("confirmBox").hidden=true;$("startBox").hidden=false});
-$("goConfirm").addEventListener("click",async function(){
+$("go").addEventListener("click",async function(){
   if(!canTake())return;
-  who=$("contestant").value.trim();store("hijab-name",who);
-  var b=$("goConfirm"),er=$("startErr");b.disabled=true;er.hidden=true;
+  var er=$("startErr");er.hidden=true;
+  who=$("contestant").value.trim().replace(/\s+/g," ");digits=normD($("contestantNo").value);
+  store("hijab-name",who);store("hijab-digits",digits);
+  var b=$("go");b.disabled=true;
   try{
-    var r=await rpc("start_attempt",{p_name:who,p_device:DEVICE});
-    startedAtMs=Date.parse(r.started_at);who=r.name||who;
+    var r=await rpc("start_attempt",{p_name:who,p_digits:digits});
+    attNo=r.attempt_no;
+    $("confirmTxt").innerHTML="هذه محاولتك <b>"+(attNo===1?"الأولى":"الثانية")+"</b> من محاولتين. "+(attNo===1?"يمكنك محاولة ثانية بعد التسليم، وتُحتسب الأعلى درجة. ":"هي الأخيرة، وتُحتسب الأعلى درجة بين محاولتيك. ")+"لا تظهر الإجابات الصحيحة بعد التسليم.";
+    $("startBox").hidden=true;$("confirmBox").hidden=false;
   }catch(e){
-    b.disabled=false;$("confirmBox").hidden=true;$("startBox").hidden=false;
     var c=e&&e.code;
-    if(c==="done"){dbOK=true;showDone(false);return}
-    er.textContent=c==="name_taken"?"هذا الاسم مسجّل من قبل. إن كنتَ سجّلتَ قبل قليل فافتح الصفحة من نفس الجهاز، وإلا فأضف ما يميّز اسمك.":c==="before"?"لم تفتح المسابقة بعد.":(c==="closed"||c==="none")?"المسابقة غير مفتوحة الآن.":c==="bad_name"?"اكتب اسمك كاملاً (٣ أحرف على الأقل).":"تعذّر الاتصال بالخادم. تحقق من الإنترنت وحاول مرة أخرى.";
-    er.hidden=false;pollState();return;
+    er.textContent=c==="bad_name"?"اكتب اسمك الرباعي (ثلاث كلمات على الأقل).":c==="bad_digits"?"اكتب ٤ أرقام للتمييز بين الأسماء.":c==="no_attempts"?"استنفدتَ محاولتيك المسموح بهما.":(c==="closed"||c==="none"||c==="before")?"المسابقة غير مفتوحة الآن.":"تعذّر الاتصال بالخادم. تحقق من الإنترنت وحاول مرة أخرى.";
+    er.hidden=false;pollState();
   }
-  b.disabled=false;idx=0;picks=new Array(QUESTIONS.length).fill(-1);
-  store("qs-draft",JSON.stringify({picks:picks,idx:0,who:who,startedAt:startedAtMs}));
-  beginQuiz();
+  b.disabled=false;checkName();
+});
+$("goCancel").addEventListener("click",function(){$("confirmBox").hidden=true;$("startBox").hidden=false});
+$("goConfirm").addEventListener("click",function(){
+  if(!canTake())return;
+  idx=0;picks=new Array(QUESTIONS.length).fill(-1);draftSave();beginQuiz();
 });
 $("qPrev").addEventListener("click",function(){clearTimeout(adv);if(idx>0){idx--;render()}});
 $("qNext").addEventListener("click",function(){clearTimeout(adv);goNext()});
@@ -744,12 +762,18 @@ function summaryText(){
   picks.forEach(function(p,i){s+=n2a(i+1)+": "+(p>=0?LET[p]:"—")+"\n"});
   return s.trim();
 }
-function showDone(first,auto){
+function showDone(first){
   screen("sEnd",!first);
-  $("endTitle").textContent=auto?"انتهى الوقت وسُلّمت إجاباتك":"تم تسجيل إجاباتك";
+  $("endTitle").textContent="تم تسجيل إجاباتك";
   var st=$("status"),act=$("endActions");act.innerHTML="";
-  if(dbOK){st.className="status ok";st.textContent="سُجّلت إجاباتك عند المنظّم"}
-  else{st.className="status warn";st.textContent="لم تُحفظ تلقائياً. انسخ إجاباتك وأرسلها للمنظّم"}
+  if(dbOK){st.className="status ok";st.textContent="سُجّلت إجاباتك"}
+  else{st.className="status warn";st.textContent=SUBERR||"لم تُحفظ تلقائياً. انسخ إجاباتك وأرسلها للمنظّم"}
+  $("endText").textContent=dbOK&&usedAtt<2?"شكراً لمشاركتك. بقيت لك محاولة ثانية، وتُحتسب الأعلى درجة منهما.":"شكراً لمشاركتك. يُكرَّم الفائزون حسب القرعة.";
+  if(dbOK&&usedAtt<2){
+    var r=document.createElement("button");r.type="button";r.className="btn btn-line";r.textContent="ابدأ المحاولة الثانية";
+    r.addEventListener("click",function(){store("hijab-done","");picks=new Array(QUESTIONS.length).fill(-1);idx=0;$("sEnd").classList.remove("on");$("sStart").classList.add("on");$("confirmBox").hidden=true;$("startBox").hidden=false;checkName();$("quizBox").scrollIntoView({behavior:"smooth",block:"nearest"})});
+    act.appendChild(r);
+  }
   if(!dbOK){
     var c=document.createElement("button");c.type="button";c.className="btn btn-main";c.textContent="نسخ إجاباتي";
     c.addEventListener("click",function(){
@@ -759,32 +783,34 @@ function showDone(first,auto){
     });
     act.appendChild(c);
   }
-  if(first)confetti(150);
+  if(first&&dbOK)confetti(150);
 }
-async function doSubmit(auto){
-  if(!auto&&!(canTake()||attemptActive())){refreshReview();return}
+var SUBERR="";
+async function doSubmit(){
   var btn=$("submit");btn.disabled=true;btn.textContent="جارٍ التسجيل…";
   var answers=[];picks.forEach(function(p,i){if(p>=0)answers.push({q:i+1,pick:p,text:QUESTIONS[i].o[p]})});
-  dbOK=false;
+  dbOK=false;SUBERR="";
   for(var tries=0;tries<4&&!dbOK;tries++){
     try{
-      await rpc("submit_answers",{p_device:DEVICE,p_answers:answers,p_read_pct:Math.round(seenCount()/TOTAL*100),p_auto:!!auto});
-      dbOK=true;
+      var r=await rpc("submit_answers",{p_name:who,p_digits:digits,p_answers:answers,p_read_pct:Math.round(seenCount()/TOTAL*100)});
+      dbOK=true;usedAtt=r.used;
     }catch(e){
-      if(e&&e.code==="done"){dbOK=true;break}
-      if(e&&(e.code==="no_attempt"||e.code==="bad_answers"))break;
-      await new Promise(function(r){setTimeout(r,1200*(tries+1))});
+      var c=e&&e.code;
+      if(c==="no_attempts"){SUBERR="استنفدتَ محاولتيك المسموح بهما، فلم تُسجَّل هذه المحاولة.";break}
+      if(c==="closed"||c==="none"||c==="before"){SUBERR="أُغلقت المسابقة قبل تسليم هذه المحاولة.";break}
+      if(c==="bad_answers"||c==="bad_name"||c==="bad_digits")break;
+      await new Promise(function(r2){setTimeout(r2,1200*(tries+1))});
     }
   }
-  store("hijab-done",JSON.stringify({who:who,picks:picks,dbOK:dbOK,auto:!!auto}));
-  store("qs-draft","");startedAtMs=0;clearInterval(timerH);
-  showDone(true,auto);
+  store("hijab-done",JSON.stringify({who:who,digits:digits,picks:picks,dbOK:dbOK,used:usedAtt}));
+  store("qs-draft","");
+  btn.textContent="اعتماد الإجابات";
+  showDone(true);
 }
-function autoSubmit(){if(autoDone)return;autoDone=true;clearInterval(timerH);doSubmit(true)}
-$("submit").addEventListener("click",function(){doSubmit(false)});
+$("submit").addEventListener("click",function(){doSubmit()});
 (function(){
   var d=null;try{d=JSON.parse(store("hijab-done"))}catch(e){}
-  if(d&&d.picks&&d.picks.length===QUESTIONS.length&&(d.auto||d.picks.every(function(x){return x>=0}))){who=d.who||"";picks=d.picks;dbOK=!!d.dbOK;showDone(false);$("sStart").classList.remove("on")}
+  if(d&&d.picks&&d.picks.length===QUESTIONS.length&&d.picks.every(function(x){return x>=0})){who=d.who||"";digits=d.digits||"";picks=d.picks;dbOK=!!d.dbOK;usedAtt=d.used||(dbOK?1:0);showDone(false);$("sStart").classList.remove("on")}
 })();
 
 
@@ -812,7 +838,7 @@ function closeAtMs(){return WINDOW?WINDOW.c:null}
 function applyWindow(){
   var f=phase(),ban=$("winBanner"),chip=$("winChip"),txt="",cd="",cls=f.p;
   var owner=IS_OWNER?" (معاينة للمنظّم: يمكنك التجربة)":"";
-  if(f.p==="loading"||f.p==="none"){ban.hidden=true;chip.hidden=true}
+  if(f.p==="loading"||f.p==="none"||f.p==="open"||f.p==="before"){ban.hidden=true;chip.hidden=true}
   else{
     if(f.p==="nodb"){txt="تعذّر الاتصال بالخادم. تحقق من الإنترنت ثم أعد تحميل الصفحة."}
     else if(f.p==="none"){txt="لم يحدّد المنظّم موعد المسابقة بعد."+owner}
@@ -825,7 +851,7 @@ function applyWindow(){
     chip.hidden=!(f.p==="before"||f.p==="open"||f.p==="closed");
     $("winChipText").textContent=f.p==="before"?"تفتح المسابقة بعد "+cd:f.p==="open"?(f.t?"مفتوحة · تُغلق بعد "+cd:"المسابقة مفتوحة"):"أُغلقت المسابقة";
   }
-  $("go").disabled=$("contestant").value.trim().length<3||!canTake();
+  $("go").disabled=!(nameOk()&&digitsOk()&&canTake());
   var left=(f.p==="open"&&f.t)?f.t-NOW():null,warn=left!==null&&left<=600000&&!IS_OWNER;
   ["liveLeft","liveLeft2"].forEach(function(id){var e=$(id);e.hidden=!warn;if(warn)e.textContent="تبقّى "+fmtCd(left)+" على إغلاق المسابقة. سلّم إجاباتك قبل انتهاء الوقت."});
   if($("sReview").classList.contains("on"))refreshReview();
@@ -833,7 +859,7 @@ function applyWindow(){
 }
 setInterval(applyWindow,1000);
 function refreshReview(){
-  var miss=picks.filter(function(p){return p<0}).length,ok=canTake()||attemptActive();
+  var miss=picks.filter(function(p){return p<0}).length,ok=true;
   $("submit").disabled=miss>0||!ok;
   $("reviewNote").textContent=!ok?"انتهى الوقت ولم يعد التسليم متاحاً.":miss>0?"بقي "+n2a(miss)+" سؤال بلا إجابة. أجب عنها لتتمكن من الاعتماد.":"";
 }
@@ -856,16 +882,13 @@ async function pollState(){
   await pollState();
   setInterval(pollState,15000);
   document.addEventListener("visibilitychange",function(){if(!document.hidden)pollState()});
-  try{
-    var st=await rpc("my_status",{p_device:DEVICE});
-    if(st.state==="done"){
-      if(!$("sEnd").classList.contains("on")){dbOK=true;showDone(false);$("sStart").classList.remove("on")}
-    }else if(st.state==="attempt"){
-      startedAtMs=Date.parse(st.started_at);deadlineMs=startedAtMs+DURATION*1000;
-      var dr=draftLoad();who=st.name||(dr&&dr.who)||store("hijab-name")||"";
+  (function(){
+    var d=draftLoad(),dn=null;try{dn=JSON.parse(store("hijab-done"))}catch(e){}
+    if(d&&d.who&&d.digits&&d.picks&&d.picks.length===QUESTIONS.length&&phase().p==="open"&&!(dn&&dn.picks)){
+      who=d.who;digits=d.digits;attNo=d.att||1;
       $("sStart").classList.remove("on");beginQuiz();
     }
-  }catch(e){}
+  })();
   var sc=ssGet("qs-admin-code");
   if(sc){try{applyOverview(await rpc("admin_overview",{p_code:sc}));startAdmin(sc);prefillWin();renderAdmin();renderWinState()}catch(e){ssSet("qs-admin-code","")}}
 })();
@@ -913,7 +936,7 @@ var KEY=null,SUBS=[],WIN=[],FILTER="all",OPEN={},DB=null,drawing=false,rafConfir
 function score(s){return KEY?(s.sc===undefined?null:s.sc):null}
 function applyOverview(o){
   ADM=o;KEY=o.key||null;
-  SUBS=(o.subs||[]).map(function(x){return {id:x.id,name:x.name,at:x.at,durSec:x.dur_sec,readPct:x.read_pct,auto:x.auto,late:x.late,demo:x.demo,answers:x.answers||[],sc:x.score}});
+  SUBS=(o.subs||[]).map(function(x){return {id:x.id,name:x.name,digits:x.digits,pkey:x.pkey,attempt:x.attempt,at:x.at,readPct:x.read_pct,demo:x.demo,answers:x.answers||[],sc:x.score}});
   var by={};SUBS.forEach(function(s){by[s.id]=s});
   WIN=(o.winners||[]).map(function(w){return {id:w.id,at:w.at,name:by[w.id]?by[w.id].name:""}});
 }
@@ -926,8 +949,14 @@ function fmtAt(iso){
   try{return new Date(iso).toLocaleString("ar-SA-u-ca-gregory-nu-arab",{weekday:"short",day:"numeric",month:"short",hour:"numeric",minute:"2-digit"})}catch(e){return iso||""}
 }
 function rows(){
-  var T=QUESTIONS.length;
-  var list=SUBS.map(function(s){var sc=score(s),late=!!s.late;return {s:s,sc:sc,late:late,full:sc!==null&&sc===T&&!late,won:WIN.some(function(w){return w.id===s.id})}});
+  var T=QUESTIONS.length,g={},order=[];
+  SUBS.forEach(function(s){if(!g[s.pkey]){g[s.pkey]=[];order.push(s.pkey)}g[s.pkey].push(s)});
+  var wonIds={};WIN.forEach(function(w){wonIds[w.id]=1});
+  var list=order.map(function(k){
+    var subs=g[k].slice().sort(function(a,b){var sa=score(a)||0,sb=score(b)||0;return sb!==sa?sb-sa:String(a.at).localeCompare(String(b.at))});
+    var best=subs[0],sc=score(best);
+    return {s:best,all:subs,n:subs.length,sc:sc,late:false,full:sc!==null&&sc===T,won:subs.some(function(x){return wonIds[x.id]})};
+  });
   list.sort(function(a,b){
     if(a.full!==b.full)return a.full?-1:1;
     if((b.sc||0)!==(a.sc||0))return (b.sc||0)-(a.sc||0);
@@ -946,11 +975,12 @@ function renderAdmin(){
     var tr=el("tr");
     tr.appendChild(el("td","num",n2a(i+1)));
     tr.appendChild(el("td",null,(r.s.name||"بلا اسم")+(r.s.demo?" (تجريبي)":"")));
+    tr.appendChild(el("td","num",r.s.demo?"—":n2a(r.s.digits||"")));
     tr.appendChild(el("td",null,fmtAt(r.s.at)));
-    tr.appendChild(el("td","num",r.s.durSec!=null?fmtDur(r.s.durSec):"—"));
     tr.appendChild(el("td","num",r.sc===null?"—":n2a(r.sc)+" / "+n2a(T)));
+    tr.appendChild(el("td","num",n2a(r.n)));
     var td=el("td");
-    td.appendChild(el("span","pill "+(r.won?"win":r.full?"in":"out"),r.won?"فائز بالقرعة":r.full?"مؤهَّل للقرعة":r.late?"متأخر · خارج القرعة":"خارج القرعة"));
+    td.appendChild(el("span","pill "+(r.won?"win":r.full?"in":"out"),r.won?"فائز بالقرعة":r.full?"مؤهَّل للقرعة":"خارج القرعة"));
     tr.appendChild(td);
     var ac=el("td");
     var d=el("button","row-btn",OPEN[r.s.id]?"إخفاء":"التفاصيل");d.type="button";
@@ -958,17 +988,17 @@ function renderAdmin(){
     var x=el("button","row-btn danger",OPEN["del"+r.s.id]?"تأكيد الحذف؟":"حذف");x.type="button";
     x.addEventListener("click",async function(){
       if(!OPEN["del"+r.s.id]){OPEN["del"+r.s.id]=true;renderAdmin();return}
-      try{await rpc("admin_delete",{p_code:ADMIN_CODE,p_id:r.s.id})}catch(e){}
+      try{for(var di=0;di<r.all.length;di++)await rpc("admin_delete",{p_code:ADMIN_CODE,p_id:r.all[di].id})}catch(e){}
       delete OPEN["del"+r.s.id];await refreshAdmin();
     });ac.appendChild(x);
     tr.appendChild(ac);tb.appendChild(tr);
     if(OPEN[r.s.id]){
-      var dr=el("tr","detail"),dc=el("td");dc.colSpan=7;var g=el("div","ans-grid");
+      var dr=el("tr","detail"),dc=el("td");dc.colSpan=9;var g=el("div","ans-grid");
       (r.s.answers||[]).forEach(function(a){
         var ok=KEY&&KEY[a.q-1]===a.text;
         g.appendChild(el("span",KEY?(ok?"y":"n"):"",n2a(a.q)+" · "+LET[a.pick]+(KEY?(ok?" ✓":" ✗"):"")));
       });
-      var extra=el("p","note","أجاب عن "+n2a((r.s.answers||[]).length)+" من "+n2a(T)+(r.s.auto?" · تسليم تلقائي بانتهاء الوقت":"")+" · القراءة: "+n2a(r.s.readPct!=null?r.s.readPct:0)+"٪ من الكتاب");
+      var extra=el("p","note","أفضل محاولة: أجاب عن "+n2a((r.s.answers||[]).length)+" من "+n2a(T)+" · عدد المحاولات: "+n2a(r.n)+(r.n>1?" (الدرجات: "+r.all.map(function(x){return n2a(score(x)||0)}).join("، ")+")":"")+" · القراءة: "+n2a(r.s.readPct!=null?r.s.readPct:0)+"٪ من الكتاب");
       dc.appendChild(g);dc.appendChild(extra);dr.appendChild(dc);tb.appendChild(dr);
     }
   });
@@ -1012,34 +1042,90 @@ Array.prototype.forEach.call(document.querySelectorAll(".tab[data-f]"),function(
   });
 });
 
-$("exportBtn").addEventListener("click",function(){
-  var b=$("exportBtn"),orig="تصدير نسخة (Excel)";
-  function say(t){b.textContent=t;setTimeout(function(){b.textContent=orig},2500)}
-  try{
-    var T=QUESTIONS.length;
-    function q(v){v=(v===null||v===undefined)?"":String(v);return '"'+v.replace(/"/g,'""')+'"'}
-    function pad(n){return n<10?"0"+n:""+n}
-    function ts(iso){var d=new Date(iso);if(isNaN(d))return iso||"";return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())+" "+pad(d.getHours())+":"+pad(d.getMinutes())}
-    var head=["#","الاسم","وقت التسليم","المدة (دقيقة:ثانية)","الدرجة","من","الحالة"];
-    for(var i=1;i<=T;i++)head.push("س"+i);
-    var out=[head.map(q).join(",")];
-    rows().forEach(function(r,i){
-      var st=r.won?"فائز بالقرعة":r.full?"مؤهَّل للقرعة":r.late?"متأخر":"خارج القرعة";
-      var d=r.s.durSec,du=d!=null?pad(Math.floor(d/60))+":"+pad(d%60):"";
-      var line=[i+1,(r.s.name||"")+(r.s.demo?" (تجريبي)":""),ts(r.s.at),du,r.sc===null?"":r.sc,T,st];
-      for(var k=0;k<T;k++){var a=(r.s.answers||[]).filter(function(x){return x.q===k+1})[0];line.push(a?(a.text||""):"")}
-      out.push(line.map(q).join(","));
+function exportTable(){
+  var T=QUESTIONS.length;
+  function pad(n){return n<10?"0"+n:""+n}
+  function ts(iso){var d=new Date(iso);if(isNaN(d))return iso||"";return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())+" "+pad(d.getHours())+":"+pad(d.getMinutes())}
+  var head=["#","الاسم","الرقم","وقت التسليم","الدرجة (الأعلى)","من","عدد المحاولات","الحالة"],full=head.slice();
+  for(var i=1;i<=T;i++)full.push("س"+i);
+  var body=[],bodyFull=[];
+  rows().forEach(function(r,i){
+    var st=r.won?"فائز بالقرعة":r.full?"مؤهَّل للقرعة":"خارج القرعة";
+    var base=[i+1,(r.s.name||"")+(r.s.demo?" (تجريبي)":""),r.s.demo?"":r.s.digits,ts(r.s.at),r.sc===null?"":r.sc,T,r.n,st];
+    body.push(base);
+    var withA=base.slice();
+    for(var k=0;k<T;k++){var a=(r.s.answers||[]).filter(function(x){return x.q===k+1})[0];withA.push(a?(a.text||""):"")}
+    bodyFull.push(withA);
+  });
+  return {head:head,body:body,headFull:full,bodyFull:bodyFull};
+}
+function fileStamp(){var d=new Date(),p=function(n){return n<10?"0"+n:""+n};return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate())}
+/* xlsx بسيط بلا مكتبات: ملفات مضغوطة بدون ضغط (stored) */
+var CRC=(function(){var t=[];for(var n=0;n<256;n++){var c=n;for(var k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0}return t})();
+function crc32(b){var c=0xFFFFFFFF;for(var i=0;i<b.length;i++)c=CRC[(c^b[i])&255]^(c>>>8);return (c^0xFFFFFFFF)>>>0}
+function zipStore(files){
+  var enc=new TextEncoder(),parts=[],cd=[],off=0;
+  function u16(v){return [v&255,(v>>8)&255]}function u32(v){return [v&255,(v>>8)&255,(v>>16)&255,(v>>>24)&255]}
+  files.forEach(function(f){
+    var nm=enc.encode(f.name),data=enc.encode(f.data),crc=crc32(data);
+    var lh=[].concat(u32(0x04034b50),u16(20),u16(0x0800),u16(0),u16(0),u16(0x21),u32(crc),u32(data.length),u32(data.length),u16(nm.length),u16(0));
+    parts.push(new Uint8Array(lh),nm,data);
+    cd.push({nm:nm,crc:crc,len:data.length,off:off});
+    off+=lh.length+nm.length+data.length;
+  });
+  var cdStart=off,cdBytes=[];
+  cd.forEach(function(e){
+    var h=[].concat(u32(0x02014b50),u16(20),u16(20),u16(0x0800),u16(0),u16(0),u16(0x21),u32(e.crc),u32(e.len),u32(e.len),u16(e.nm.length),u16(0),u16(0),u16(0),u16(0),u32(0),u32(e.off));
+    parts.push(new Uint8Array(h),e.nm);off+=h.length+e.nm.length;
+  });
+  var end=[].concat(u32(0x06054b50),u16(0),u16(0),u16(cd.length),u16(cd.length),u32(off-cdStart),u32(cdStart),u16(0));
+  parts.push(new Uint8Array(end));
+  return new Blob(parts,{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
+}
+function colName(i){var s="";i++;while(i>0){var m=(i-1)%26;s=String.fromCharCode(65+m)+s;i=Math.floor((i-1)/26)}return s}
+function xesc(v){return String(v).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]}).replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g,"")}
+function makeXlsx(head,body){
+  var all=[head].concat(body),x='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
+  var sheet=x+'<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView rightToLeft="1" workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><cols><col min="1" max="1" width="5" customWidth="1"/><col min="2" max="2" width="34" customWidth="1"/><col min="3" max="8" width="16" customWidth="1"/><col min="9" max="40" width="22" customWidth="1"/></cols><sheetData>';
+  all.forEach(function(row,ri){
+    sheet+='<row r="'+(ri+1)+'">';
+    row.forEach(function(v,ci){
+      var ref=colName(ci)+(ri+1);
+      if(typeof v==="number"&&isFinite(v))sheet+='<c r="'+ref+'"><v>'+v+'</v></c>';
+      else sheet+='<c r="'+ref+'" t="inlineStr"'+(ri===0?' s="1"':'')+'><is><t xml:space="preserve">'+xesc(v===null||v===undefined?"":v)+'</t></is></c>';
     });
-    var d0=new Date(),fn="نسخة-مسابقة-القصيّر-"+d0.getFullYear()+"-"+pad(d0.getMonth()+1)+"-"+pad(d0.getDate())+".csv";
-    var blob=new Blob(["\ufeff"+out.join("\r\n")],{type:"text/csv;charset=utf-8"});
-    var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=fn;document.body.appendChild(a);a.click();
-    setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},1500);
-    say("تم التصدير");
-  }catch(e){say("تعذّر التصدير")}
+    sheet+='</row>';
+  });
+  sheet+='</sheetData></worksheet>';
+  return zipStore([
+    {name:"[Content_Types].xml",data:x+'<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>'},
+    {name:"_rels/.rels",data:x+'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>'},
+    {name:"xl/workbook.xml",data:x+'<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="النتائج" sheetId="1" r:id="rId1"/></sheets></workbook>'},
+    {name:"xl/_rels/workbook.xml.rels",data:x+'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>'},
+    {name:"xl/styles.xml",data:x+'<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font></fonts><fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="2"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>'},
+    {name:"xl/worksheets/sheet1.xml",data:sheet}
+  ]);
+}
+function saveBlob(blob,fn){var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=fn;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},1500)}
+function flash(b,t,orig){b.textContent=t;setTimeout(function(){b.textContent=orig},2500)}
+$("exportBtn").addEventListener("click",function(){
+  var b=$("exportBtn"),orig="تصدير Excel";
+  try{var t=exportTable();saveBlob(makeXlsx(t.headFull,t.bodyFull),"نتائج-مسابقة-القصيّر-"+fileStamp()+".xlsx");flash(b,"تم التصدير",orig)}
+  catch(e){flash(b,"تعذّر التصدير",orig)}
+});
+$("exportPdf").addEventListener("click",function(){
+  var b=$("exportPdf"),orig="تصدير PDF";
+  try{
+    var t=exportTable(),h='<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>نتائج مسابقة القصيّر</title><style>@page{size:A4 landscape;margin:12mm}body{font-family:Tahoma,"Segoe UI",Arial,sans-serif;color:#111;margin:0}h1{font-size:18px;margin:0 0 4px}p{margin:0 0 12px;color:#555;font-size:12px}table{width:100%;border-collapse:collapse;font-size:12px}th,td{border:1px solid #bbb;padding:5px 7px;text-align:right}th{background:#e8eeed}tr{page-break-inside:avoid}</style></head><body><h1>نتائج مسابقة القصيّر ١٤٤٨ هـ</h1><p>'+xesc(new Date().toLocaleString("ar-SA-u-ca-gregory-nu-arab"))+'</p><table><thead><tr>'+t.head.map(function(x){return "<th>"+xesc(x)+"</th>"}).join("")+'</tr></thead><tbody>'+t.body.map(function(r){return "<tr>"+r.map(function(x){return "<td>"+xesc(x===null||x===undefined?"":x)+"</td>"}).join("")+"</tr>"}).join("")+'</tbody></table></body></html>';
+    var f=document.createElement("iframe");f.style.cssText="position:fixed;right:0;bottom:0;width:0;height:0;border:0";document.body.appendChild(f);
+    f.contentDocument.open();f.contentDocument.write(h);f.contentDocument.close();
+    setTimeout(function(){try{f.contentWindow.focus();f.contentWindow.print()}catch(e){}setTimeout(function(){f.remove()},4000)},400);
+    flash(b,"اختر «حفظ بصيغة PDF»",orig);
+  }catch(e){flash(b,"تعذّر التصدير",orig)}
 });
 $("copyList").addEventListener("click",function(){
-  var T=QUESTIONS.length,out=["الاسم — الدرجة — وقت التسليم — الحالة"];
-  rows().forEach(function(r){out.push((r.s.name||"")+" — "+(r.sc===null?"؟":n2a(r.sc)+"/"+n2a(T))+" — "+fmtAt(r.s.at)+" — "+(r.won?"فائز":r.full?"مؤهل للقرعة":"خارج القرعة"))});
+  var T=QUESTIONS.length,out=["الاسم — الرقم — الدرجة — وقت التسليم — الحالة"];
+  rows().forEach(function(r){out.push((r.s.name||"")+" — "+(r.s.demo?"":r.s.digits)+" — "+(r.sc===null?"؟":n2a(r.sc)+"/"+n2a(T))+" — "+fmtAt(r.s.at)+" — "+(r.won?"فائز":r.full?"مؤهل للقرعة":"خارج القرعة"))});
   var txt=out.join("\n"),b=$("copyList"),ok=function(){b.textContent="تم النسخ"};
   var fall=function(){var ta=document.createElement("textarea");ta.value=txt;document.body.appendChild(ta);ta.select();try{document.execCommand("copy");ok()}catch(e){}ta.remove()};
   try{navigator.clipboard.writeText(txt).then(ok,fall)}catch(e){fall()}
@@ -1049,30 +1135,20 @@ function toLocalInput(iso){
   if(!iso)return "";var d=new Date(iso),p=function(x){return String(x).padStart(2,"0")};
   return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate())+"T"+p(d.getHours())+":"+p(d.getMinutes());
 }
-var winPrefilled=false;
-function prefillWin(){
-  if(winPrefilled||!ADM||!ADM.settings)return;winPrefilled=true;
-  $("winOpen").value=toLocalInput(ADM.settings.open_at);$("winClose").value=toLocalInput(ADM.settings.close_at);
-}
+function prefillWin(){}
 function renderWinState(){
-  var f=phase(),st=(ADM&&ADM.settings)||{},oAt=WINDOW&&WINDOW.o?new Date(WINDOW.o).toISOString():"",cAt=WINDOW&&WINDOW.c?new Date(WINDOW.c).toISOString():"";
-  var m={none:"لم تحدّد موعداً بعد. المسابقة مغلقة أمام المتسابقين حتى تحفظ الموعد.",before:"ستفتح: "+(oAt?fmtAt(oAt):""),open:cAt?"مفتوحة الآن وتُغلق: "+fmtAt(cAt):"مفتوحة الآن بلا موعد إغلاق.",closed:"مغلقة أمام المتسابقين.",loading:"",nodb:""};
+  var f=phase(),st=(ADM&&ADM.settings)||{};
+  var m={none:"لم تُفتح بعد. اضغط «افتح الآن» عند إرسال الرابط.",before:"",open:"مفتوحة الآن وتُغلق تلقائياً نهاية يوم ٣٠/٥/١٤٤٨ هـ ("+(st.deadline?fmtAt(st.deadline):"")+").",closed:st.force_closed?"أُغلقت يدوياً.":"مغلقة أمام المتسابقين.",loading:"",nodb:""};
   $("winState").textContent="الحالة: "+(m[f.p]||"");
   $("winStop").textContent=st.force_closed?"أعد الفتح":"أغلق الآن";
 }
-async function saveWin(extra){
-  var o=$("winOpen").value,c=$("winClose").value;
-  var data={opensAt:o?new Date(o).toISOString():null,closesAt:c?new Date(c).toISOString():null,forceClosed:false};
-  Object.keys(extra||{}).forEach(function(k){data[k]=extra[k]});
-  if(data.opensAt&&data.closesAt&&Date.parse(data.closesAt)<=Date.parse(data.opensAt)){$("winMsg").textContent="وقت الإغلاق يجب أن يكون بعد وقت الفتح.";return}
+async function setWin(open,force){
   $("winMsg").textContent="";
   try{
-    await rpc("admin_set_window",{p_code:ADMIN_CODE,p_open:data.opensAt,p_close:data.closesAt,p_force:!!data.forceClosed});
+    await rpc("admin_set_window",{p_code:ADMIN_CODE,p_open:open,p_force:!!force});
     $("winMsg").textContent="تم الحفظ.";await refreshAdmin();await pollState();
   }catch(e){$("winMsg").textContent=errText(e)}
 }
-$("winSave").addEventListener("click",function(){saveWin()});
-$("winWeek").addEventListener("click",function(){var n=new Date(NOW()),e=new Date(n.getTime()+7*86400000);$("winOpen").value=toLocalInput(n.toISOString());$("winClose").value=toLocalInput(e.toISOString());saveWin({opensAt:n.toISOString(),closesAt:e.toISOString()})});
 $("demoAdd").addEventListener("click",async function(){
   $("demoMsg").textContent="";
   try{await rpc("admin_demo_add",{p_code:ADMIN_CODE});$("demoMsg").textContent="أُضيف ٨ متسابقين تجريبيين. اضغط «اسحب فائزاً» في بطاقة القرعة.";await refreshAdmin()}
@@ -1082,10 +1158,25 @@ $("demoDel").addEventListener("click",async function(){
   try{await rpc("admin_demo_del",{p_code:ADMIN_CODE});$("drawnName").className="nm";$("drawnName").textContent="؟";$("demoMsg").textContent="حُذف المتسابقون التجريبيون ونتائج قرعتهم.";await refreshAdmin()}
   catch(e){$("demoMsg").textContent=errText(e)}
 });
-$("winNow").addEventListener("click",function(){var n=new Date(NOW());$("winOpen").value=toLocalInput(n.toISOString());saveWin({opensAt:n.toISOString()})});
+$("winNow").addEventListener("click",function(){setWin(new Date(NOW()).toISOString(),false)});
 $("winStop").addEventListener("click",function(){
-  if(ADM&&ADM.settings&&ADM.settings.force_closed)saveWin();else saveWin({forceClosed:true});
+  var st=(ADM&&ADM.settings)||{},o=st.open_at||new Date(NOW()).toISOString();
+  if(st.force_closed)setWin(new Date(NOW()).toISOString(),false);else setWin(o,true);
 });
+/* ===== نافذة المعلومات + زر الأعلى ===== */
+(function(){
+  var m=$("infoModal");
+  function close(){m.hidden=true;try{sessionStorage.setItem("qs-info","1")}catch(e){}}
+  $("infoX").addEventListener("click",close);$("infoOk").addEventListener("click",close);
+  m.addEventListener("click",function(e){if(e.target===m)close()});
+  document.addEventListener("keydown",function(e){if(e.key==="Escape"&&!m.hidden)close()});
+  var seen=null;try{seen=sessionStorage.getItem("qs-info")}catch(e){}
+  if(!seen)setTimeout(function(){m.hidden=false;$("infoOk").focus()},350);
+  var t=$("toTop");
+  function chk(){t.hidden=(window.scrollY||document.documentElement.scrollTop)<700}
+  window.addEventListener("scroll",chk,{passive:true});chk();
+  t.addEventListener("click",function(){window.scrollTo({top:0,behavior:REDUCE?"auto":"smooth"})});
+})();
 </script>
 
 </html>
