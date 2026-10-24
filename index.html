@@ -311,7 +311,6 @@ canvas#fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-in
       <div class="sec-head">
         <p class="sec-kicker">الكتاب المقرر</p>
         <h2 class="sec-title">اقرأ الكتاب أولاً، ثم أجب</h2>
-        <p class="sec-lead">الكتاب في ٦٣ صفحة وعشرة أسئلة رئيسية. تنقّل بالأزرار أو بالسحب على الجوال أو بأسهم لوحة المفاتيح، واضغط على الصفحة لتكبيرها.</p>
       </div>
 
       <a class="book-link" id="bookLink" href="hijab-book.pdf" download="الحجاب-سؤال-وجواب.pdf" rel="noopener">
@@ -368,12 +367,13 @@ canvas#fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-in
             <p class="note" id="countNote" hidden style="margin:-8px 0 16px"></p>
             <div class="field">
               <label for="contestant">الاسم الرباعي</label>
-              <input id="contestant" type="text" autocomplete="off" placeholder="مثال: محمد عبدالله سعد القصيّر">
+              <input id="contestant" type="text" autocomplete="off" placeholder="مثال: محمد عبدالله سعد فهد">
+              <span class="note" style="margin:0;font-size:13px">اكتب أسماءك الأربعة، دون اسم العائلة.</span>
             </div>
             <div class="field">
-              <label for="contestantNo">رقم للتمييز بين الأسماء المتشابهة</label>
-              <input id="contestantNo" type="text" inputmode="numeric" maxlength="8" autocomplete="off" placeholder="آخر ٤ أرقام من جوالك" dir="ltr" style="text-align:right">
-              <span class="note" style="margin:0;font-size:13px">يُستخدم فقط عند تشابه الأسماء، ولا يظهر لغير المنظّم.</span>
+              <label for="contestantNo">رقم الجوال</label>
+              <input id="contestantNo" type="text" inputmode="numeric" maxlength="15" autocomplete="off" placeholder="05xxxxxxxx" dir="ltr" style="text-align:right">
+              <span class="note" style="margin:0;font-size:13px">يُستخدم للتمييز بين الأسماء المتشابهة فقط، ولا يظهر لغير المنظّم.</span>
             </div>
             <p class="warn-box" id="startErr" hidden></p>
             <div id="startBox"><button class="btn btn-main" id="go" type="button" disabled>ابدأ المسابقة</button></div>
@@ -465,7 +465,7 @@ canvas#fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-in
         </div>
         <div class="tbl-wrap">
           <table>
-            <thead><tr><th class="num">#</th><th>الاسم</th><th>الرقم</th><th>وقت التسليم</th><th class="num">الدرجة</th><th class="num">المحاولات</th><th>الحالة</th><th></th></tr></thead>
+            <thead><tr><th class="num">#</th><th>الاسم</th><th>الجوال</th><th>وقت التسليم</th><th class="num">الدرجة</th><th class="num">المحاولات</th><th>الحالة</th><th></th></tr></thead>
             <tbody id="rows"></tbody>
           </table>
           <div class="empty" id="rowsEmpty">لا توجد إجابات مسلّمة بعد.</div>
@@ -653,19 +653,19 @@ show(savedPg>0&&savedPg<=TOTAL?savedPg:7,true);
 var SCR=["sStart","sQ","sReview","sEnd"], LET=["أ","ب","ج","د"];
 var idx=0,picks=new Array(QUESTIONS.length).fill(-1),who="",dbOK=false,t0=0,timerH=null;
 function screen(id,noscroll){SCR.forEach(function(s){$(s).classList.toggle("on",s===id)});if(!noscroll)$("quizBox").scrollIntoView({behavior:REDUCE?"auto":"smooth",block:"nearest"})}
-var FACTS_HTML='<li><b>'+n2a(QUESTIONS.length)+'</b> سؤالاً، اختيار من متعدد</li><li>للمشاركين <b>فوق ٧ سنوات</b></li><li>لكل مشارك <b>محاولتان</b> فقط، وتُحتسب الأعلى درجة</li><li>القرعة لأصحاب الإجابات الكاملة</li><li>تُغلق المسابقة نهاية يوم <b>٣٠/٥/١٤٤٨ هـ</b></li>';
+var FACTS_HTML='<li><b>'+n2a(QUESTIONS.length)+'</b> سؤالاً، اختيار من متعدد</li><li>يُشترط ألا يقلّ عمر المشارك عن <b>٧ سنوات</b></li><li>لكل مشارك <b>محاولتان</b> فقط، وتُحتسب الأعلى درجة</li><li>القرعة لأصحاب الإجابات الكاملة</li><li>تُغلق المسابقة نهاية يوم <b>٣٠ جمادى الأولى ١٤٤٨ هـ</b></li>';
 $("facts").innerHTML=FACTS_HTML;$("facts2").innerHTML=FACTS_HTML;
 var digits="",attNo=1,usedAtt=0;
 var nm0=store("hijab-name");if(nm0)$("contestant").value=nm0;var dg0=store("hijab-digits");if(dg0)$("contestantNo").value=dg0;
 function normD(t){return String(t).replace(/[٠-٩]/g,function(d){return "٠١٢٣٤٥٦٧٨٩".indexOf(d)}).replace(/[۰-۹]/g,function(d){return "۰۱۲۳۴۵۶۷۸۹".indexOf(d)}).replace(/\D/g,"")}
 function nameOk(){return $("contestant").value.trim().split(/\s+/).filter(Boolean).length>=3}
-function digitsOk(){return normD($("contestantNo").value).length===4}
+function digitsOk(){return (function(l){return l>=9&&l<=15})(normD($("contestantNo").value).length)}
 function checkName(){
   $("go").disabled=!(nameOk()&&digitsOk()&&canTake());
   if(!(nameOk()&&digitsOk())){$("confirmBox").hidden=true;$("startBox").hidden=false}
 }
 $("contestant").addEventListener("input",checkName);
-$("contestantNo").addEventListener("input",function(){var v=normD($("contestantNo").value).slice(0,4);if($("contestantNo").value!==v)$("contestantNo").value=v;checkName()});
+$("contestantNo").addEventListener("input",function(){var v=normD($("contestantNo").value).slice(0,15);if($("contestantNo").value!==v)$("contestantNo").value=v;checkName()});
 checkName();
 function fmtDur(s){s=Math.max(0,Math.round(s));return n2a(String(Math.floor(s/60)).padStart(2,"0"))+":"+n2a(String(s%60).padStart(2,"0"))}
 function draftSave(){store("qs-draft",JSON.stringify({picks:picks,idx:idx,who:who,digits:digits,att:attNo}))}
@@ -722,7 +722,7 @@ $("go").addEventListener("click",async function(){
     $("startBox").hidden=true;$("confirmBox").hidden=false;
   }catch(e){
     var c=e&&e.code;
-    er.textContent=c==="bad_name"?"اكتب اسمك الرباعي (ثلاث كلمات على الأقل).":c==="bad_digits"?"اكتب ٤ أرقام للتمييز بين الأسماء.":c==="no_attempts"?"استنفدتَ محاولتيك المسموح بهما.":(c==="closed"||c==="none"||c==="before")?"المسابقة غير مفتوحة الآن.":"تعذّر الاتصال بالخادم. تحقق من الإنترنت وحاول مرة أخرى.";
+    er.textContent=c==="bad_name"?"اكتب اسمك الرباعي (ثلاث كلمات على الأقل).":c==="bad_digits"?"اكتب رقم جوالك صحيحاً (٩ إلى ١٥ رقماً).":c==="no_attempts"?"استنفدتَ محاولتيك المسموح بهما.":(c==="closed"||c==="none"||c==="before")?"المسابقة غير مفتوحة الآن.":"تعذّر الاتصال بالخادم. تحقق من الإنترنت وحاول مرة أخرى.";
     er.hidden=false;pollState();
   }
   b.disabled=false;checkName();
@@ -1046,7 +1046,7 @@ function exportTable(){
   var T=QUESTIONS.length;
   function pad(n){return n<10?"0"+n:""+n}
   function ts(iso){var d=new Date(iso);if(isNaN(d))return iso||"";return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())+" "+pad(d.getHours())+":"+pad(d.getMinutes())}
-  var head=["#","الاسم","الرقم","وقت التسليم","الدرجة (الأعلى)","من","عدد المحاولات","الحالة"],full=head.slice();
+  var head=["#","الاسم","الجوال","وقت التسليم","الدرجة (الأعلى)","من","عدد المحاولات","الحالة"],full=head.slice();
   for(var i=1;i<=T;i++)full.push("س"+i);
   var body=[],bodyFull=[];
   rows().forEach(function(r,i){
@@ -1124,7 +1124,7 @@ $("exportPdf").addEventListener("click",function(){
   }catch(e){flash(b,"تعذّر التصدير",orig)}
 });
 $("copyList").addEventListener("click",function(){
-  var T=QUESTIONS.length,out=["الاسم — الرقم — الدرجة — وقت التسليم — الحالة"];
+  var T=QUESTIONS.length,out=["الاسم — الجوال — الدرجة — وقت التسليم — الحالة"];
   rows().forEach(function(r){out.push((r.s.name||"")+" — "+(r.s.demo?"":r.s.digits)+" — "+(r.sc===null?"؟":n2a(r.sc)+"/"+n2a(T))+" — "+fmtAt(r.s.at)+" — "+(r.won?"فائز":r.full?"مؤهل للقرعة":"خارج القرعة"))});
   var txt=out.join("\n"),b=$("copyList"),ok=function(){b.textContent="تم النسخ"};
   var fall=function(){var ta=document.createElement("textarea");ta.value=txt;document.body.appendChild(ta);ta.select();try{document.execCommand("copy");ok()}catch(e){}ta.remove()};
@@ -1138,7 +1138,7 @@ function toLocalInput(iso){
 function prefillWin(){}
 function renderWinState(){
   var f=phase(),st=(ADM&&ADM.settings)||{};
-  var m={none:"لم تُفتح بعد. اضغط «افتح الآن» عند إرسال الرابط.",before:"",open:"مفتوحة الآن وتُغلق تلقائياً نهاية يوم ٣٠/٥/١٤٤٨ هـ ("+(st.deadline?fmtAt(st.deadline):"")+").",closed:st.force_closed?"أُغلقت يدوياً.":"مغلقة أمام المتسابقين.",loading:"",nodb:""};
+  var m={none:"لم تُفتح بعد. اضغط «افتح الآن» عند إرسال الرابط.",before:"",open:"مفتوحة الآن وتُغلق تلقائياً نهاية يوم ٣٠ جمادى الأولى ١٤٤٨ هـ ("+(st.deadline?fmtAt(st.deadline):"")+").",closed:st.force_closed?"أُغلقت يدوياً.":"مغلقة أمام المتسابقين.",loading:"",nodb:""};
   $("winState").textContent="الحالة: "+(m[f.p]||"");
   $("winStop").textContent=st.force_closed?"أعد الفتح":"أغلق الآن";
 }
