@@ -355,20 +355,18 @@ canvas#fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-in
       <div class="sec-head">
         <p class="sec-kicker">المسابقة</p>
         <h2 class="sec-title">اختبر ما قرأت</h2>
-        <p class="sec-lead">أجب عن الأسئلة العشرين. لا تظهر الإجابات الصحيحة هنا.</p>
       </div>
       <div class="quiz-shell">
         <div class="quiz" id="quizBox">
           <div class="screen start on" id="sStart">
             <h3>مسابقة «الحجاب .. سؤال وجواب»</h3>
-            <p>اقرأ الكتاب ثم أجب. يدخل القرعة من أجاب عن جميع الأسئلة إجابة صحيحة.</p>
+            <p>اقرأ الكتاب ثم أجب. يدخل السحب من أجاب عن جميع الأسئلة إجابة صحيحة.</p>
             <div class="win-banner none" id="winBanner" hidden></div>
             <ul class="facts" id="facts"></ul>
             <p class="note" id="countNote" hidden style="margin:-8px 0 16px"></p>
             <div class="field">
               <label for="contestant">الاسم الرباعي</label>
               <input id="contestant" type="text" autocomplete="off" placeholder="مثال: محمد بن عبدالله بن سعد بن فهد">
-              <span class="note" style="margin:0;font-size:13px">هذا مثال فقط؛ يُقبل أي اسم رباعي، ولا يلزم ذكر «بن».</span>
             </div>
             <div class="field">
               <label for="contestantNo">رقم الجوال</label>
@@ -412,7 +410,7 @@ canvas#fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-in
           <div class="result" id="sEnd">
             <div class="done-mark" aria-hidden="true">✓</div>
             <h3 id="endTitle">تم تسجيل إجاباتك</h3>
-            <p id="endText">شكراً لمشاركتك. يُكرَّم الفائزون حسب القرعة.</p>
+            <p id="endText">شكراً لمشاركتك. يُكرَّم الفائزون حسب السحب.</p>
             <span class="status warn" id="status"></span>
             <div class="cta" id="endActions" style="margin-top:0"></div>
           </div>
@@ -425,7 +423,7 @@ canvas#fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-in
     <div class="wrap">
       <div class="sec-head">
         <p class="sec-kicker">للمنظّم فقط</p>
-        <h2 class="sec-title">لوحة النتائج والقرعة</h2>
+        <h2 class="sec-title">لوحة النتائج والسحب</h2>
         <p class="sec-lead">لا يراها أحد غيرك. تتحدث القائمة تلقائياً كلما سلّم متسابق إجاباته.</p>
       </div>
       <div class="admin">
@@ -439,7 +437,7 @@ canvas#fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-in
           <p class="note" id="winMsg"></p>
         </div>
         <div class="win-card">
-          <h3>جرّب القرعة</h3>
+          <h3>جرّب السحب</h3>
           <p class="note" style="margin:0">تضيف ٨ متسابقين تجريبيين (٥ منهم أجابوا كاملاً) لتجرّب السحب، ثم تحذفهم بضغطة. لا يظهرون في عدّاد المشاركين العام.</p>
           <div class="cta">
             <button class="btn btn-line" id="demoAdd" type="button">أضف متسابقين تجريبيين</button>
@@ -449,14 +447,14 @@ canvas#fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-in
         </div>
         <div class="stats">
           <div class="stat"><b id="stAll">٠</b><span>عدد المسلّمين</span></div>
-          <div class="stat hot"><b id="stFull">٠</b><span>أجابوا كاملاً (يدخلون القرعة)</span></div>
-          <div class="stat"><b id="stOut">٠</b><span>خارج القرعة</span></div>
+          <div class="stat hot"><b id="stFull">٠</b><span>أجابوا كاملاً (يدخلون السحب)</span></div>
+          <div class="stat"><b id="stOut">٠</b><span>خارج السحب</span></div>
         </div>
         <div class="warn-box" id="noKey" hidden>مفتاح الإجابات غير مضبوط في قاعدة البيانات، فلا تظهر الدرجات.</div>
         <div class="tabs" role="tablist" aria-label="تصفية القائمة">
           <button class="tab" role="tab" data-f="all" aria-selected="true" type="button">الكل</button>
-          <button class="tab" role="tab" data-f="in" aria-selected="false" type="button">مؤهَّلون للقرعة</button>
-          <button class="tab" role="tab" data-f="out" aria-selected="false" type="button">خارج القرعة</button>
+          <button class="tab" role="tab" data-f="in" aria-selected="false" type="button">مؤهَّلون للسحب</button>
+          <button class="tab" role="tab" data-f="out" aria-selected="false" type="button">خارج السحب</button>
           <span class="tab-spacer"></span>
           <button class="tab" id="copyList" type="button">نسخ القائمة</button>
           <button class="tab" id="exportBtn" type="button">تصدير Excel</button>
@@ -471,12 +469,12 @@ canvas#fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-in
         </div>
 
         <div class="raffle">
-          <h3>القرعة</h3>
-          <p id="rafInfo">يدخل القرعة من أجاب عن جميع الأسئلة إجابة صحيحة فقط.</p>
+          <h3>السحب</h3>
+          <p id="rafInfo">يدخل السحب من أجاب عن جميع الأسئلة إجابة صحيحة فقط.</p>
           <div class="drawn"><div class="nm" id="drawnName">؟</div></div>
           <div class="cta" style="margin-top:0">
             <button class="btn btn-gold" id="drawBtn" type="button">اسحب فائزاً</button>
-            <button class="btn btn-ghost" id="resetRaf" type="button">مسح نتائج القرعة</button>
+            <button class="btn btn-ghost" id="resetRaf" type="button">مسح نتائج السحب</button>
           </div>
           <ol class="winners" id="winners"></ol>
         </div>
@@ -652,7 +650,7 @@ show(savedPg>0&&savedPg<=TOTAL?savedPg:7,true);
 var SCR=["sStart","sQ","sReview","sEnd"], LET=["أ","ب","ج","د"];
 var idx=0,picks=new Array(QUESTIONS.length).fill(-1),who="",dbOK=false,t0=0,timerH=null;
 function screen(id,noscroll){SCR.forEach(function(s){$(s).classList.toggle("on",s===id)});if(!noscroll)$("quizBox").scrollIntoView({behavior:REDUCE?"auto":"smooth",block:"nearest"})}
-var FACTS_HTML='<li><b>'+n2a(QUESTIONS.length)+'</b> سؤالاً، اختيار من متعدد</li><li>يُشترط ألا يقلّ عمر المشارك عن <b>٧ سنوات</b></li><li>لكل مشارك <b>محاولتان</b> فقط، وتُحتسب الأعلى درجة</li><li>القرعة لأصحاب الإجابات الكاملة</li><li>تُغلق المسابقة نهاية يوم <b><bdi dir="rtl">٣٠ / ٥ / ١٤٤٨ هـ</bdi></b></li>';
+var FACTS_HTML='<li><b>'+n2a(QUESTIONS.length)+'</b> سؤالاً، اختيار من متعدد</li><li>يُشترط ألا يقلّ عمر المشارك عن <b>٧ سنوات</b></li><li>لكل مشارك <b>محاولتان</b> فقط، وتُحتسب الأعلى درجة</li><li>السحب لأصحاب الإجابات الكاملة</li><li>تُغلق المسابقة نهاية يوم <b><bdi dir="rtl">٣٠ / ٥ / ١٤٤٨ هـ</bdi></b></li>';
 $("facts").innerHTML=FACTS_HTML;$("facts2").innerHTML=FACTS_HTML;
 var digits="",attNo=1,usedAtt=0;
 var nm0=store("hijab-name");if(nm0)$("contestant").value=nm0;var dg0=store("hijab-digits");if(dg0)$("contestantNo").value=dg0;
@@ -767,7 +765,7 @@ function showDone(first){
   var st=$("status"),act=$("endActions");act.innerHTML="";
   if(dbOK){st.className="status ok";st.textContent="سُجّلت إجاباتك"}
   else{st.className="status warn";st.textContent=SUBERR||"لم تُحفظ تلقائياً. انسخ إجاباتك وأرسلها للمنظّم"}
-  $("endText").textContent=dbOK&&usedAtt<2?"شكراً لمشاركتك. بقيت لك محاولة ثانية، وتُحتسب الأعلى درجة منهما.":"شكراً لمشاركتك. يُكرَّم الفائزون حسب القرعة.";
+  $("endText").textContent=dbOK&&usedAtt<2?"شكراً لمشاركتك. بقيت لك محاولة ثانية، وتُحتسب الأعلى درجة منهما.":"شكراً لمشاركتك. يُكرَّم الفائزون حسب السحب.";
   if(dbOK&&usedAtt<2){
     var r=document.createElement("button");r.type="button";r.className="btn btn-line";r.textContent="ابدأ المحاولة الثانية";
     r.addEventListener("click",function(){store("hijab-done","");picks=new Array(QUESTIONS.length).fill(-1);idx=0;$("sEnd").classList.remove("on");$("sStart").classList.add("on");$("confirmBox").hidden=true;$("startBox").hidden=false;checkName();$("quizBox").scrollIntoView({behavior:"smooth",block:"nearest"})});
@@ -866,7 +864,7 @@ function renderCount(){
   if(PCOUNT===null)return;
   var n=PCOUNT,w=n===1?"شخص":n===2?"شخصان":n<=10?"أشخاص":"شخصاً";
   $("countChip").hidden=false;$("countNum").textContent=n2a(n);$("countWord").textContent=n===1?"شخص":n===2?"شخصان":n<=10?"أشخاص":"شخصاً";
-  $("countNote").hidden=false;$("countNote").textContent=n===0?"كن أول من يختبر.":("أنهى الاختبار حتى الآن "+n2a(n)+" "+w+".");
+  $("countNote").hidden=n===0;$("countNote").textContent=n===0?"":("أنهى الاختبار حتى الآن "+n2a(n)+" "+w+".");
 }
 async function pollState(){
   try{
@@ -979,7 +977,7 @@ function renderAdmin(){
     tr.appendChild(el("td","num",r.sc===null?"—":n2a(r.sc)+" / "+n2a(T)));
     tr.appendChild(el("td","num",n2a(r.n)));
     var td=el("td");
-    td.appendChild(el("span","pill "+(r.won?"win":r.full?"in":"out"),r.won?"فائز بالقرعة":r.full?"مؤهَّل للقرعة":"خارج القرعة"));
+    td.appendChild(el("span","pill "+(r.won?"win":r.full?"in":"out"),r.won?"فائز بالسحب":r.full?"مؤهَّل للسحب":"خارج السحب"));
     tr.appendChild(td);
     var ac=el("td");
     var d=el("button","row-btn",OPEN[r.s.id]?"إخفاء":"التفاصيل");d.type="button";
@@ -1006,9 +1004,9 @@ function renderAdmin(){
 function eligible(){return rows().filter(function(r){return r.full&&!r.won})}
 function renderRaffle(){
   var el0=eligible(),T=QUESTIONS.length;
-  $("rafInfo").textContent=KEY?("المتبقون في القرعة: "+n2a(el0.length)+" ممن أجابوا عن الأسئلة الـ"+n2a(T)+" كاملةً."):"اضبط مفتاح الإجابات أولاً.";
+  $("rafInfo").textContent=KEY?("المتبقون في السحب: "+n2a(el0.length)+" ممن أجابوا عن الأسئلة الـ"+n2a(T)+" كاملةً."):"اضبط مفتاح الإجابات أولاً.";
   $("drawBtn").disabled=drawing||!KEY||el0.length===0;
-  $("resetRaf").textContent=rafConfirm?"تأكيد المسح؟":"مسح نتائج القرعة";$("resetRaf").disabled=WIN.length===0||drawing;
+  $("resetRaf").textContent=rafConfirm?"تأكيد المسح؟":"مسح نتائج السحب";$("resetRaf").disabled=WIN.length===0||drawing;
   var ol=$("winners");ol.innerHTML="";
   WIN.forEach(function(w,i){
     var li=el("li");li.appendChild(el("span","rk",n2a(i+1)));li.appendChild(el("span","wn",w.name));li.appendChild(el("span","wt",fmtAt(w.at)));ol.appendChild(li);
@@ -1049,7 +1047,7 @@ function exportTable(){
   for(var i=1;i<=T;i++)full.push("س"+i);
   var body=[],bodyFull=[];
   rows().forEach(function(r,i){
-    var st=r.won?"فائز بالقرعة":r.full?"مؤهَّل للقرعة":"خارج القرعة";
+    var st=r.won?"فائز بالسحب":r.full?"مؤهَّل للسحب":"خارج السحب";
     var base=[i+1,(r.s.name||"")+(r.s.demo?" (تجريبي)":""),r.s.demo?"":r.s.digits,ts(r.s.at),r.sc===null?"":r.sc,T,r.n,st];
     body.push(base);
     var withA=base.slice();
@@ -1124,7 +1122,7 @@ $("exportPdf").addEventListener("click",function(){
 });
 $("copyList").addEventListener("click",function(){
   var T=QUESTIONS.length,out=["الاسم — الجوال — الدرجة — وقت التسليم — الحالة"];
-  rows().forEach(function(r){out.push((r.s.name||"")+" — "+(r.s.demo?"":r.s.digits)+" — "+(r.sc===null?"؟":n2a(r.sc)+"/"+n2a(T))+" — "+fmtAt(r.s.at)+" — "+(r.won?"فائز":r.full?"مؤهل للقرعة":"خارج القرعة"))});
+  rows().forEach(function(r){out.push((r.s.name||"")+" — "+(r.s.demo?"":r.s.digits)+" — "+(r.sc===null?"؟":n2a(r.sc)+"/"+n2a(T))+" — "+fmtAt(r.s.at)+" — "+(r.won?"فائز":r.full?"مؤهل للسحب":"خارج السحب"))});
   var txt=out.join("\n"),b=$("copyList"),ok=function(){b.textContent="تم النسخ"};
   var fall=function(){var ta=document.createElement("textarea");ta.value=txt;document.body.appendChild(ta);ta.select();try{document.execCommand("copy");ok()}catch(e){}ta.remove()};
   try{navigator.clipboard.writeText(txt).then(ok,fall)}catch(e){fall()}
@@ -1150,11 +1148,11 @@ async function setWin(open,force){
 }
 $("demoAdd").addEventListener("click",async function(){
   $("demoMsg").textContent="";
-  try{await rpc("admin_demo_add",{p_code:ADMIN_CODE});$("demoMsg").textContent="أُضيف ٨ متسابقين تجريبيين. اضغط «اسحب فائزاً» في بطاقة القرعة.";await refreshAdmin()}
+  try{await rpc("admin_demo_add",{p_code:ADMIN_CODE});$("demoMsg").textContent="أُضيف ٨ متسابقين تجريبيين. اضغط «اسحب فائزاً» في بطاقة السحب.";await refreshAdmin()}
   catch(e){$("demoMsg").textContent=errText(e)}
 });
 $("demoDel").addEventListener("click",async function(){
-  try{await rpc("admin_demo_del",{p_code:ADMIN_CODE});$("drawnName").className="nm";$("drawnName").textContent="؟";$("demoMsg").textContent="حُذف المتسابقون التجريبيون ونتائج قرعتهم.";await refreshAdmin()}
+  try{await rpc("admin_demo_del",{p_code:ADMIN_CODE});$("drawnName").className="nm";$("drawnName").textContent="؟";$("demoMsg").textContent="حُذف المتسابقون التجريبيون ونتائج سحبهم.";await refreshAdmin()}
   catch(e){$("demoMsg").textContent=errText(e)}
 });
 $("winNow").addEventListener("click",function(){setWin(new Date(NOW()).toISOString(),false)});
