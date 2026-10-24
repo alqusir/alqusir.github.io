@@ -986,8 +986,10 @@ function renderAdmin(){
     var x=el("button","row-btn danger",OPEN["del"+r.s.id]?"تأكيد الحذف؟":"حذف");x.type="button";
     x.addEventListener("click",async function(){
       if(!OPEN["del"+r.s.id]){OPEN["del"+r.s.id]=true;renderAdmin();return}
-      try{for(var di=0;di<r.all.length;di++)await rpc("admin_delete",{p_code:ADMIN_CODE,p_id:r.all[di].id})}catch(e){}
+      var failed=false;
+      try{for(var di=0;di<r.all.length;di++)await rpc("admin_delete",{p_code:ADMIN_CODE,p_id:r.all[di].id})}catch(e){failed=true}
       delete OPEN["del"+r.s.id];await refreshAdmin();
+      if(failed)alert("تعذّر الحذف. حدّث الصفحة وحاول مرة أخرى.");
     });ac.appendChild(x);
     tr.appendChild(ac);tb.appendChild(tr);
     if(OPEN[r.s.id]){
@@ -1017,13 +1019,15 @@ function rnd(n){var a=new Uint32Array(1);crypto.getRandomValues(a);return a[0]%n
 $("drawBtn").addEventListener("click",async function(){
   var pool=eligible();if(!pool.length||drawing)return;
   drawing=true;renderRaffle();rafConfirm=false;
+  var centerDrawn=function(){try{$("drawnName").scrollIntoView({behavior:REDUCE?"auto":"smooth",block:"center"})}catch(e){}};
+  centerDrawn();
   var res;
   try{res=await rpc("admin_draw",{p_code:ADMIN_CODE})}catch(e){drawing=false;renderRaffle();$("rafInfo").textContent="تعذّر السحب: "+errText(e);return}
   var name=$("drawnName"),step=0,total=26;
   name.className="nm spin";
   (function spin(){
     if(step<total){name.textContent=pool[rnd(pool.length)].s.name;step++;setTimeout(spin,REDUCE?10:60+step*step*0.55)}
-    else{name.textContent=res.name;name.className="nm final";confetti(220);drawing=false;refreshAdmin()}
+    else{name.textContent=res.name;name.className="nm final";centerDrawn();confetti(220);drawing=false;refreshAdmin()}
   })();
 });
 $("resetRaf").addEventListener("click",async function(){
