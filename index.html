@@ -278,7 +278,8 @@ canvas#fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-in
 .gate-box h3{margin:0;font-size:20px;font-weight:900}
 .gate-box input{min-height:48px;padding:0 14px;border-radius:12px;border:1.5px solid var(--line);background:transparent;color:var(--ink);font:inherit;font-size:18px;letter-spacing:.2em;text-align:center}
 .gate-box.info{position:relative;width:min(420px,100%);padding-top:40px}
-.x-btn{position:absolute;top:10px;left:10px;width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
+.x-btn{position:absolute;top:10px;left:10px;z-index:3;-webkit-appearance:none;appearance:none;padding:0;width:40px;height:40px;border-radius:50%;border:0;background:#0f4c5c;color:#fff;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;touch-action:manipulation;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+.x-btn svg{display:block;width:18px;height:18px;stroke:#fff;stroke-width:2.8}
 .x-btn:hover{border-color:var(--accent)}
 .to-top{position:fixed;bottom:20px;left:20px;z-index:80;width:48px;height:48px;border-radius:50%;border:0;background:var(--green);color:#fff;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 8px 22px rgba(0,0,0,.28)}
 .to-top[hidden]{display:none!important}
@@ -410,8 +411,8 @@ canvas#fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-in
 
           <div class="result" id="sEnd">
             <div class="done-mark" aria-hidden="true">✓</div>
-            <h3 id="endTitle">تم تسجيل إجاباتك</h3>
-            <p id="endText">شكراً لمشاركتك. يُكرَّم الفائزون حسب السحب.</p>
+            <h3 id="endTitle" hidden>تم تسجيل إجاباتك</h3>
+            <p id="endText">شكراً لمشاركتك.</p>
             <span class="status warn" id="status"></span>
             <div class="cta" id="endActions" style="margin-top:0"></div>
           </div>
@@ -762,11 +763,11 @@ function summaryText(){
 }
 function showDone(first){
   screen("sEnd",!first);
-  $("endTitle").textContent="تم تسجيل إجاباتك";
+  $("endTitle").hidden=true;
   var st=$("status"),act=$("endActions");act.innerHTML="";
   if(dbOK){st.className="status ok";st.textContent="سُجّلت إجاباتك"}
   else{st.className="status warn";st.textContent=SUBERR||"لم تُحفظ تلقائياً. انسخ إجاباتك وأرسلها للمنظّم"}
-  $("endText").textContent="شكراً لمشاركتك. يُكرَّم الفائزون حسب السحب.";
+  $("endText").textContent="شكراً لمشاركتك.";
   if(false){
     var r=document.createElement("button");r.type="button";r.className="btn btn-line";r.textContent="ابدأ المحاولة الثانية";
     r.addEventListener("click",function(){store("hijab-done","");picks=new Array(QUESTIONS.length).fill(-1);idx=0;$("sEnd").classList.remove("on");$("sStart").classList.add("on");$("confirmBox").hidden=true;$("startBox").hidden=false;checkName();$("quizBox").scrollIntoView({behavior:"smooth",block:"nearest"})});
