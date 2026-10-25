@@ -945,6 +945,7 @@ function lockAdmin(){IS_ADMIN=false;ADMIN_CODE=null;ssSet("qs-admin-code","");cl
 })();
 
 /* ===== لوحة المنظّم (تظهر لصاحب الصفحة فقط) ===== */
+var drawBase=0;function visWIN(){return drawing?WIN.slice(0,drawBase):WIN}
 var KEY=null,SUBS=[],WIN=[],FILTER="all",OPEN={},DB=null,drawing=false,rafConfirm=false;
 function score(s){return KEY?(s.sc===undefined?null:s.sc):null}
 function applyOverview(o){
@@ -966,7 +967,7 @@ function last4(id){var d="";SUBS.forEach(function(s){if(s.id===id&&!s.demo)d=Str
 function rows(){
   var T=QUESTIONS.length,g={},order=[];
   SUBS.forEach(function(s){if(!g[s.pkey]){g[s.pkey]=[];order.push(s.pkey)}g[s.pkey].push(s)});
-  var wonIds={};WIN.forEach(function(w){wonIds[w.id]=1});
+  var wonIds={};visWIN().forEach(function(w){wonIds[w.id]=1});
   var list=order.map(function(k){
     var subs=g[k].slice().sort(function(a,b){var sa=score(a)||0,sb=score(b)||0;return sb!==sa?sb-sa:String(a.at).localeCompare(String(b.at))});
     var best=subs[0],sc=score(best);
@@ -1028,14 +1029,14 @@ function renderRaffle(){
   $("drawBtn").disabled=drawing||!KEY||el0.length===0;
   $("resetRaf").textContent=rafConfirm?"تأكيد المسح؟":"مسح نتائج السحب";$("resetRaf").disabled=WIN.length===0||drawing;
   var ol=$("winners");ol.innerHTML="";
-  WIN.forEach(function(w,i){
+  visWIN().forEach(function(w,i){
     var li=el("li");li.appendChild(el("span","rk",n2a(i+1)));var wn=el("span","wn",w.name);var l4=last4(w.id);if(l4){wn.appendChild(el("small","l4","آخر ٤ أرقام: "+l4))}li.appendChild(wn);li.appendChild(el("span","wt",fmtAt(w.at)));ol.appendChild(li);
   });
 }
 function rnd(n){var a=new Uint32Array(1);crypto.getRandomValues(a);return a[0]%n}
 $("drawBtn").addEventListener("click",async function(){
   var pool=eligible();if(!pool.length||drawing)return;
-  drawing=true;renderRaffle();rafConfirm=false;
+  drawBase=WIN.length;drawing=true;renderRaffle();renderAdmin();rafConfirm=false;
   var centerDrawn=function(){try{$("drawnName").scrollIntoView({behavior:"auto",block:"start"})}catch(e){}};
   centerDrawn();
   var res;
