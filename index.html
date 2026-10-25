@@ -376,6 +376,10 @@ canvas#fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-in
               <label for="contestantNo">رقم الجوال</label>
               <input id="contestantNo" type="text" inputmode="numeric" maxlength="15" autocomplete="off" placeholder="05xxxxxxxx" dir="ltr" style="text-align:right">
             </div>
+            <div class="field" id="entryField" hidden>
+              <label for="entryCode">رمز الأسرة</label>
+              <input id="entryCode" type="text" autocomplete="off" placeholder="الرمز الذي وصلك مع الرابط" dir="ltr" style="text-align:right">
+            </div>
             <p class="warn-box" id="startErr" hidden></p>
             <div id="startBox"><button class="btn btn-main" id="go" type="button" disabled>ابدأ المسابقة</button></div>
             <div id="confirmBox" hidden>
@@ -439,6 +443,11 @@ canvas#fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-in
             <button class="btn btn-line" id="winStop" type="button">أغلق الآن</button>
           </div>
           <p class="note" id="winMsg"></p>
+          <h3 style="margin-top:22px">رمز الأسرة</h3>
+          <p class="note" style="margin:0">يكتبه المتسابق مع اسمه وجواله، فلا يشارك إلا من وصله منك. أرسله مع الرابط. اتركه فارغاً لإلغاء الشرط.</p>
+          <div class="field" style="margin:12px 0 10px"><input id="entryIn" type="text" autocomplete="off" dir="ltr" maxlength="40" style="text-align:right" placeholder="بلا رمز"></div>
+          <div class="cta" style="margin-top:0"><button class="btn btn-main" id="entrySave" type="button">حفظ الرمز</button></div>
+          <p class="note" id="entryMsg"></p>
         </div>
         <div class="win-card">
           <h3>جرّب السحب</h3>
@@ -550,11 +559,12 @@ async function rpc(fn,args){
   var r=await fetch(SB_URL+"/rest/v1/rpc/"+fn,{method:"POST",headers:{"apikey":SB_KEY,"Authorization":"Bearer "+SB_KEY,"Content-Type":"application/json"},body:JSON.stringify(args||{})});
   var t=await r.text(),j=null;try{j=t?JSON.parse(t):null}catch(e){}
   if(!r.ok){var e=new Error((j&&j.message)||("http"+r.status));e.code=(j&&j.message)||("http"+r.status);throw e}
+  if(j&&typeof j==="object"&&typeof j.error==="string"){var e2=new Error(j.error);e2.code=j.error;throw e2}
   if(j&&typeof j.now==="string"){var sv=Date.parse(j.now);if(!isNaN(sv))SKEW=sv-Date.now()}
   return j;
 }
 var DEVICE=(function(){var d=store("qs-device");if(!d||d.length<16){var a=new Uint8Array(16);crypto.getRandomValues(a);d=Array.prototype.map.call(a,function(x){return("0"+x.toString(16)).slice(-2)}).join("");store("qs-device",d)}return d})();
-function errText(e){var c=e&&e.code;return c==="bad_code"?"الرمز غير صحيح.":c==="locked"?"محاولات كثيرة. انتظر بضع دقائق ثم أعد المحاولة.":c==="no_key"?"مفتاح الإجابات غير مضبوط.":c==="no_eligible"?"لا يوجد متسابق مؤهل للسحب.":"تعذّر الاتصال بالخادم. حاول مرة أخرى."}
+function errText(e){var c=e&&e.code;return c==="bad_code"?"الرمز غير صحيح.":c==="locked"?"محاولات كثيرة. انتظر بضع دقائق ثم أعد المحاولة.":c==="bad_entry"?"رمز الأسرة غير صحيح.":c==="locked_entry"?"محاولات كثيرة على رمز الأسرة. انتظر بضع دقائق.":c==="no_key"?"مفتاح الإجابات غير مضبوط.":c==="no_eligible"?"لا يوجد متسابق مؤهل للسحب.":"تعذّر الاتصال بالخادم. حاول مرة أخرى."}
 var REDUCE=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 /* ===== المظهر ===== */
@@ -656,16 +666,18 @@ var idx=0,picks=new Array(QUESTIONS.length).fill(-1),who="",dbOK=false,t0=0,time
 function screen(id,noscroll){SCR.forEach(function(s){$(s).classList.toggle("on",s===id)});if(!noscroll)$("quizBox").scrollIntoView({behavior:REDUCE?"auto":"smooth",block:(id==="sReview"||id==="sEnd")?"start":"nearest"})}
 var FACTS_HTML='<li><b>'+n2a(QUESTIONS.length)+'</b> سؤالاً، اختيار من متعدد</li><li>يُشترط ألا يقلّ عمر المشارك عن <b>٧ سنوات</b></li><li>لكل مشارك <b>محاولة واحدة</b> فقط</li><li>السحب لأصحاب الإجابات الكاملة</li><li>تُغلق المسابقة نهاية يوم <b><bdi dir="rtl">٣٠ / ٥ / ١٤٤٨ هـ</bdi></b></li>';
 $("facts").innerHTML=FACTS_HTML;$("facts2").innerHTML=FACTS_HTML;
-var digits="",attNo=1,usedAtt=0;
-var nm0=store("hijab-name");if(nm0)$("contestant").value=nm0;var dg0=store("hijab-digits");if(dg0)$("contestantNo").value=dg0;
+var digits="",attNo=1,usedAtt=0,ENTRY_REQ=false;
+var nm0=store("hijab-name");if(nm0)$("contestant").value=nm0;var dg0=store("hijab-digits");if(dg0)$("contestantNo").value=dg0;var en0=store("hijab-entry");if(en0)$("entryCode").value=en0;
+function entryOk(){return !ENTRY_REQ||$("entryCode").value.trim().length>0}
 function normD(t){return String(t).replace(/[٠-٩]/g,function(d){return "٠١٢٣٤٥٦٧٨٩".indexOf(d)}).replace(/[۰-۹]/g,function(d){return "۰۱۲۳۴۵۶۷۸۹".indexOf(d)}).replace(/\D/g,"")}
 function nameOk(){return $("contestant").value.trim().split(/\s+/).filter(Boolean).length>=3}
 function digitsOk(){return (function(l){return l>=9&&l<=15})(normD($("contestantNo").value).length)}
 function checkName(){
-  $("go").disabled=!(nameOk()&&digitsOk()&&canTake());
+  $("go").disabled=!(nameOk()&&digitsOk()&&entryOk()&&canTake());
   if(!(nameOk()&&digitsOk())){$("confirmBox").hidden=true;$("startBox").hidden=false}
 }
 $("contestant").addEventListener("input",checkName);
+$("entryCode").addEventListener("input",checkName);
 $("contestantNo").addEventListener("input",function(){var v=normD($("contestantNo").value).slice(0,15);if($("contestantNo").value!==v)$("contestantNo").value=v;checkName()});
 checkName();
 function fmtDur(s){s=Math.max(0,Math.round(s));return n2a(String(Math.floor(s/60)).padStart(2,"0"))+":"+n2a(String(s%60).padStart(2,"0"))}
@@ -717,13 +729,14 @@ $("go").addEventListener("click",async function(){
   store("hijab-name",who);store("hijab-digits",digits);
   var b=$("go");b.disabled=true;
   try{
-    var r=await rpc("start_attempt",{p_name:who,p_digits:digits});
+    var entryV=$("entryCode").value.trim();
+    var r=await rpc("start_attempt",{p_name:who,p_digits:digits,p_entry:entryV});store("hijab-entry",entryV);
     attNo=r.attempt_no;
     picks=new Array(QUESTIONS.length).fill(-1);idx=0;
     beginQuiz();
   }catch(e){
     var c=e&&e.code;
-    er.textContent=c==="bad_name"?"اكتب اسمك الرباعي (ثلاث كلمات على الأقل).":c==="bad_digits"?"اكتب رقم جوالك صحيحاً (٩ إلى ١٥ رقماً).":c==="no_attempts"?"سبق أن شاركتَ بهذا الاسم ورقم الجوال، والمحاولة واحدة فقط.":(c==="closed"||c==="none"||c==="before")?"المسابقة غير مفتوحة الآن.":"تعذّر الاتصال بالخادم. تحقق من الإنترنت وحاول مرة أخرى.";
+    er.textContent=c==="bad_name"?"اكتب اسمك الرباعي (ثلاث كلمات على الأقل).":c==="bad_digits"?"اكتب رقم جوالك صحيحاً (٩ إلى ١٥ رقماً).":c==="bad_entry"?"رمز الأسرة غير صحيح. اسأل من أرسل لك الرابط.":c==="locked_entry"?"محاولات كثيرة على رمز الأسرة. انتظر بضع دقائق.":c==="no_attempts"?"سبق أن شاركتَ بهذا الاسم ورقم الجوال، والمحاولة واحدة فقط.":(c==="closed"||c==="none"||c==="before")?"المسابقة غير مفتوحة الآن.":"تعذّر الاتصال بالخادم. تحقق من الإنترنت وحاول مرة أخرى.";
     er.hidden=false;pollState();
   }
   b.disabled=false;checkName();
@@ -793,11 +806,12 @@ async function doSubmit(){
   dbOK=false;SUBERR="";
   for(var tries=0;tries<4&&!dbOK;tries++){
     try{
-      var r=await rpc("submit_answers",{p_name:who,p_digits:digits,p_answers:answers,p_read_pct:Math.round(seenCount()/TOTAL*100)});
+      var r=await rpc("submit_answers",{p_name:who,p_digits:digits,p_answers:answers,p_read_pct:Math.round(seenCount()/TOTAL*100),p_entry:(store("hijab-entry")||"")});
       dbOK=true;usedAtt=r.used;
     }catch(e){
       var c=e&&e.code;
       if(c==="no_attempts"){SUBERR="سبق تسجيل مشاركتك، والمحاولة واحدة فقط.";break}
+      if(c==="bad_entry"||c==="locked_entry"){SUBERR="تعذّر قبول الرمز، فلم تُسجَّل إجاباتك. أعد المحاولة أو راسل المنظّم.";break}
       if(c==="closed"||c==="none"||c==="before"){SUBERR="أُغلقت المسابقة قبل تسليم هذه المحاولة.";break}
       if(c==="bad_answers"||c==="bad_name"||c==="bad_digits")break;
       await new Promise(function(r2){setTimeout(r2,1200*(tries+1))});
@@ -852,7 +866,7 @@ function applyWindow(){
     chip.hidden=!(f.p==="before"||f.p==="open"||f.p==="closed");
     $("winChipText").textContent=f.p==="before"?"تفتح المسابقة بعد "+cd:f.p==="open"?(f.t?"مفتوحة · تُغلق بعد "+cd:"المسابقة مفتوحة"):"أُغلقت المسابقة";
   }
-  $("go").disabled=!(nameOk()&&digitsOk()&&canTake());
+  $("go").disabled=!(nameOk()&&digitsOk()&&entryOk()&&canTake());
   var left=(f.p==="open"&&f.t)?f.t-NOW():null,warn=left!==null&&left<=600000&&!IS_OWNER;
   ["liveLeft","liveLeft2"].forEach(function(id){var e=$(id);e.hidden=!warn;if(warn)e.textContent="تبقّى "+fmtCd(left)+" على إغلاق المسابقة. سلّم إجاباتك قبل انتهاء الوقت."});
   if($("sReview").classList.contains("on"))refreshReview();
@@ -874,8 +888,8 @@ async function pollState(){
     var st=await rpc("public_state");
     var ms=function(x){var t=x?Date.parse(x):NaN;return isNaN(t)?null:t};
     WINDOW={none:st.phase==="none",o:ms(st.open_at),c:ms(st.close_at)};
-    PCOUNT=st.count;NODB=false;
-    applyWindow();renderCount();
+    PCOUNT=st.count;NODB=false;ENTRY_REQ=!!st.entry_required;$("entryField").hidden=!ENTRY_REQ;
+    applyWindow();renderCount();checkName();
   }catch(e){if(WINDOW===undefined){NODB=true;applyWindow()}}
 }
 (async function initLive(){
@@ -935,7 +949,7 @@ function lockAdmin(){IS_ADMIN=false;ADMIN_CODE=null;ssSet("qs-admin-code","");cl
 var KEY=null,SUBS=[],WIN=[],FILTER="all",OPEN={},DB=null,drawing=false,rafConfirm=false;
 function score(s){return KEY?(s.sc===undefined?null:s.sc):null}
 function applyOverview(o){
-  ADM=o;KEY=o.key||null;
+  ADM=o;KEY=o.key||null;ENTRYADM=o.entry_code||"";
   SUBS=(o.subs||[]).map(function(x){return {id:x.id,name:x.name,digits:x.digits,pkey:x.pkey,attempt:x.attempt,at:x.at,readPct:x.read_pct,demo:x.demo,answers:x.answers||[],sc:x.score}});
   var by={};SUBS.forEach(function(s){by[s.id]=s});
   WIN=(o.winners||[]).map(function(w){return {id:w.id,at:w.at,name:by[w.id]?by[w.id].name:""}});
@@ -1141,7 +1155,8 @@ function toLocalInput(iso){
   if(!iso)return "";var d=new Date(iso),p=function(x){return String(x).padStart(2,"0")};
   return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate())+"T"+p(d.getHours())+":"+p(d.getMinutes());
 }
-function prefillWin(){}
+var ENTRYADM="";
+function prefillWin(){var i=$("entryIn");if(i&&document.activeElement!==i&&i.dataset.dirty!=="1")i.value=ENTRYADM}
 function renderWinState(){
   var f=phase(),st=(ADM&&ADM.settings)||{};
   var m={none:"لم تُفتح بعد. اضغط «افتح الآن» عند إرسال الرابط.",before:"",open:"مفتوحة الآن وتُغلق تلقائياً نهاية يوم ٣٠ / ٥ / ١٤٤٨ هـ ("+(st.deadline?fmtAt(st.deadline):"")+").",closed:st.force_closed?"أُغلقت يدوياً.":"مغلقة أمام المتسابقين.",loading:"",nodb:""};
@@ -1163,6 +1178,12 @@ $("demoAdd").addEventListener("click",async function(){
 $("demoDel").addEventListener("click",async function(){
   try{await rpc("admin_demo_del",{p_code:ADMIN_CODE});$("drawnName").className="nm";$("drawnName").textContent="؟";$("demoMsg").textContent="حُذف المتسابقون التجريبيون ونتائج سحبهم.";await refreshAdmin()}
   catch(e){$("demoMsg").textContent=errText(e)}
+});
+$("entryIn").addEventListener("input",function(){$("entryIn").dataset.dirty="1"});
+$("entrySave").addEventListener("click",async function(){
+  var v=$("entryIn").value.trim();$("entryMsg").textContent="";
+  try{await rpc("admin_set_entry",{p_code:ADMIN_CODE,p_entry:v});$("entryIn").dataset.dirty="";$("entryMsg").textContent=v?"حُفظ الرمز. أرسله للمتسابقين مع الرابط.":"أُلغي شرط الرمز.";await refreshAdmin();pollState()}
+  catch(e){$("entryMsg").textContent=errText(e)}
 });
 $("winNow").addEventListener("click",function(){setWin(new Date(NOW()).toISOString(),false)});
 $("winStop").addEventListener("click",function(){
