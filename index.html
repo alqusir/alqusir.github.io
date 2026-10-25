@@ -443,11 +443,6 @@ canvas#fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-in
             <button class="btn btn-line" id="winStop" type="button">أغلق الآن</button>
           </div>
           <p class="note" id="winMsg"></p>
-          <h3 style="margin-top:22px">رمز الأسرة</h3>
-          <p class="note" style="margin:0">يكتبه المتسابق مع اسمه وجواله، فلا يشارك إلا من وصله منك. أرسله مع الرابط. اتركه فارغاً لإلغاء الشرط.</p>
-          <div class="field" style="margin:12px 0 10px"><input id="entryIn" type="text" autocomplete="off" dir="ltr" maxlength="40" style="text-align:right" placeholder="بلا رمز"></div>
-          <div class="cta" style="margin-top:0"><button class="btn btn-main" id="entrySave" type="button">حفظ الرمز</button></div>
-          <p class="note" id="entryMsg"></p>
         </div>
         <div class="win-card">
           <h3>جرّب السحب</h3>
@@ -1156,7 +1151,7 @@ function toLocalInput(iso){
   return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate())+"T"+p(d.getHours())+":"+p(d.getMinutes());
 }
 var ENTRYADM="";
-function prefillWin(){var i=$("entryIn");if(i&&document.activeElement!==i&&i.dataset.dirty!=="1")i.value=ENTRYADM}
+function prefillWin(){}
 function renderWinState(){
   var f=phase(),st=(ADM&&ADM.settings)||{};
   var m={none:"لم تُفتح بعد. اضغط «افتح الآن» عند إرسال الرابط.",before:"",open:"مفتوحة الآن وتُغلق تلقائياً نهاية يوم ٣٠ / ٥ / ١٤٤٨ هـ ("+(st.deadline?fmtAt(st.deadline):"")+").",closed:st.force_closed?"أُغلقت يدوياً.":"مغلقة أمام المتسابقين.",loading:"",nodb:""};
@@ -1178,12 +1173,6 @@ $("demoAdd").addEventListener("click",async function(){
 $("demoDel").addEventListener("click",async function(){
   try{await rpc("admin_demo_del",{p_code:ADMIN_CODE});$("drawnName").className="nm";$("drawnName").textContent="؟";$("demoMsg").textContent="حُذف المتسابقون التجريبيون ونتائج سحبهم.";await refreshAdmin()}
   catch(e){$("demoMsg").textContent=errText(e)}
-});
-$("entryIn").addEventListener("input",function(){$("entryIn").dataset.dirty="1"});
-$("entrySave").addEventListener("click",async function(){
-  var v=$("entryIn").value.trim();$("entryMsg").textContent="";
-  try{await rpc("admin_set_entry",{p_code:ADMIN_CODE,p_entry:v});$("entryIn").dataset.dirty="";$("entryMsg").textContent=v?"حُفظ الرمز. أرسله للمتسابقين مع الرابط.":"أُلغي شرط الرمز.";await refreshAdmin();pollState()}
-  catch(e){$("entryMsg").textContent=errText(e)}
 });
 $("winNow").addEventListener("click",function(){setWin(new Date(NOW()).toISOString(),false)});
 $("winStop").addEventListener("click",function(){
