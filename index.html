@@ -13,23 +13,26 @@
 
 /* Layout: emerald cover with framed family name, paper-toned reader with reading tracker, accent-edged quiz card, owner-only control room */
 :root{
-  --bg:#f3f6f7; --surface:#ffffff; --surface-2:#e8eef0; --ink:#0f1f26; --muted:#566a73; --line:#d5dfe3;
-  --green:#0f4c5c; --green-2:#1f7a8c; --accent:#0e7a86;
+  --bg:#f6f1e1; --surface:#fffdf6; --surface-2:#efe7cf; --ink:#1c2b22; --muted:#66705f; --line:#ddd2b0;
+  --green:#1e5a43; --green-2:#2f7a5c; --accent:#8f6a2a;
+  --cv-bg:radial-gradient(60% 80% at 10% 0%,rgba(30,90,67,.14),transparent 60%),radial-gradient(50% 70% at 95% 100%,rgba(201,164,92,.28),transparent 60%),#f0e9cf; --cv-ink:#1e4a37; --cv-acc:#8f6a2a; --cv-line:#b8935a; --cv-btn:#1e5a43; --cv-btn-ink:#fff; --cv-ghost:#1e5a43; --cv-chip-bg:rgba(30,90,67,.07); --cv-chip-bd:rgba(30,90,67,.3); --cv-book:#4a5a4e; --cv-book-b:#1e4a37; --logo-filter:none; --totop-ink:#fff;
   --good:#1d6b4f; --good-bg:#dff1e8; --bad:#8a2230; --bad-bg:#f7e1e3;
-  --hero-1:#06151b; --hero-2:#0d3a47; --hero-ink:#eef6f7; --hero-acc:#7fe3d2; --hero-acc-2:#36b8ab;
+  --hero-1:#0b2a20; --hero-2:#15493a; --hero-ink:#f6f1e1; --hero-acc:#e0c283; --hero-acc-2:#c9a45c;
   --shadow:0 18px 40px -22px rgba(10,50,60,.40);
   --font-body:"Thmanyah Sans","Segoe UI",Tahoma,"Noto Naskh Arabic",sans-serif;
   --font-name:"Lateef Swashes","Lateef","Amiri","Traditional Arabic",serif;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#0a1519; --surface:#111f25; --surface-2:#172830; --ink:#e8f0f2; --muted:#9ab0b8; --line:#233741;
-  --green:#5cc8cc; --green-2:#2f9aa8; --accent:#5cc8cc;
+  --bg:#0c1a14; --surface:#12241b; --surface-2:#1a3125; --ink:#efe8d2; --muted:#a9b3a2; --line:#2a4235;
+  --green:#d9b970; --green-2:#b8943f; --accent:#e0c283;
   --good:#7fd9ae; --good-bg:#12362a; --bad:#f09aa5; --bad-bg:#3a1a20;
+  --cv-bg:radial-gradient(60% 80% at 12% 0%,rgba(224,194,131,.14),transparent 60%),radial-gradient(50% 70% at 95% 100%,rgba(47,122,92,.35),transparent 60%),linear-gradient(165deg,#15493a 0%,#0b2a20 75%); --cv-ink:#f6f1e1; --cv-acc:#e0c283; --cv-line:rgba(224,194,131,.65); --cv-btn:#f6f1e1; --cv-btn-ink:#0b2a20; --cv-ghost:rgba(246,241,225,.5); --cv-chip-bg:rgba(255,255,255,.08); --cv-chip-bd:rgba(255,255,255,.22); --cv-book:rgba(246,241,225,.75); --cv-book-b:#fff; --logo-filter:brightness(1.25); --totop-ink:#06201a;
   --shadow:0 18px 40px -22px rgba(0,0,0,.8); color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#0a1519; --surface:#111f25; --surface-2:#172830; --ink:#e8f0f2; --muted:#9ab0b8; --line:#233741;
-  --green:#5cc8cc; --green-2:#2f9aa8; --accent:#5cc8cc;
+  --bg:#0c1a14; --surface:#12241b; --surface-2:#1a3125; --ink:#efe8d2; --muted:#a9b3a2; --line:#2a4235;
+  --green:#d9b970; --green-2:#b8943f; --accent:#e0c283;
   --good:#7fd9ae; --good-bg:#12362a; --bad:#f09aa5; --bad-bg:#3a1a20;
+  --cv-bg:radial-gradient(60% 80% at 12% 0%,rgba(224,194,131,.14),transparent 60%),radial-gradient(50% 70% at 95% 100%,rgba(47,122,92,.35),transparent 60%),linear-gradient(165deg,#15493a 0%,#0b2a20 75%); --cv-ink:#f6f1e1; --cv-acc:#e0c283; --cv-line:rgba(224,194,131,.65); --cv-btn:#f6f1e1; --cv-btn-ink:#0b2a20; --cv-ghost:rgba(246,241,225,.5); --cv-chip-bg:rgba(255,255,255,.08); --cv-chip-bd:rgba(255,255,255,.22); --cv-book:rgba(246,241,225,.75); --cv-book-b:#fff; --logo-filter:brightness(1.25); --totop-ink:#06201a;
   --shadow:0 18px 40px -22px rgba(0,0,0,.8); color-scheme:dark}
 
 *{box-sizing:border-box}
@@ -292,18 +295,16 @@ canvas#fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-in
 #secretTap{cursor:default;-webkit-tap-highlight-color:transparent;user-select:none}
 
 /* ---- palette: cream / green / gold (from the family logo) ---- */
-:root,:root[data-theme="dark"],:root[data-theme="light"]{--bg:#f6f1e1!important;--surface:#fffdf6!important;--surface-2:#efe7cf!important;--ink:#1c2b22!important;--muted:#66705f!important;--line:#ddd2b0!important;--green:#1e5a43!important;--green-2:#2f7a5c!important;--accent:#8f6a2a!important;--hero-1:#0b2a20!important;--hero-2:#15493a!important;--hero-ink:#f6f1e1!important;--hero-acc:#e0c283!important;--hero-acc-2:#c9a45c!important}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#f6f1e1!important;--surface:#fffdf6!important;--surface-2:#efe7cf!important;--ink:#1c2b22!important;--muted:#66705f!important;--line:#ddd2b0!important;--green:#1e5a43!important;--green-2:#2f7a5c!important;--accent:#8f6a2a!important}}
-.cover{--hero-ink:#1e4a37;--hero-acc:#8f6a2a;background:radial-gradient(60% 80% at 10% 0%,rgba(30,90,67,.14),transparent 60%),radial-gradient(50% 70% at 95% 100%,rgba(201,164,92,.28),transparent 60%),#f0e9cf!important;color:#1e4a37}
-.cover .fam-label{color:#1e4a37;opacity:1}
-.family-logo{filter:none}
-.cover .year{color:#8f6a2a}.cover .year::before,.cover .year::after{background:linear-gradient(90deg,transparent,#b8935a)}
-.cover .book-line{color:#4a5a4e}.cover .book-line b{color:#1e4a37}
-.cover .btn-gold{background:#1e5a43;color:#fff}
-.cover .btn-ghost{border-color:#1e5a43;color:#1e5a43}.cover .btn-ghost:hover{background:rgba(30,90,67,.08)}
-.cover .chip-btn,.cover .count-chip{background:rgba(30,90,67,.07);border-color:rgba(30,90,67,.3);color:#1e4a37}
-.cover .count-chip b{color:#8f6a2a}.cover .count-chip .dot{background:#8f6a2a}
-#themeBtn{display:none}
+.cover{--hero-ink:var(--cv-ink);--hero-acc:var(--cv-acc);background:var(--cv-bg)!important;color:var(--cv-ink)}
+.cover .fam-label{color:var(--cv-ink);opacity:1}
+.family-logo{filter:var(--logo-filter)}
+.cover .year{color:var(--cv-acc)}.cover .year::before,.cover .year::after{background:linear-gradient(90deg,transparent,var(--cv-line))}
+.cover .book-line{color:var(--cv-book)}.cover .book-line b{color:var(--cv-book-b)}
+.cover .btn-gold{background:var(--cv-btn);color:var(--cv-btn-ink)}
+.cover .btn-ghost{border-color:var(--cv-ghost);color:var(--cv-ink)}.cover .btn-ghost:hover{background:rgba(128,128,128,.12)}
+.cover .chip-btn,.cover .count-chip{background:var(--cv-chip-bg);border-color:var(--cv-chip-bd);color:var(--cv-ink)}
+.cover .count-chip b{color:var(--cv-acc)}.cover .count-chip .dot{background:var(--cv-acc)}
+.to-top{color:var(--totop-ink)}
 </style>
 
 <header class="cover">
